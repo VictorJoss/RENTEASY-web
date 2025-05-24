@@ -31,7 +31,7 @@ export default function LoginForm() {
   };
 
   return (
-    <Card className="max-w-md mx-auto mt-8 p-6">
+    <Card className="max-w-md mx-auto mt-2 p-6">
       <h2 className="text-2xl font-bold mb-4 text-center">Iniciar sesión</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input name="email" type="email" placeholder="Correo electrónico" value={form.email} onChange={handleChange} required />
