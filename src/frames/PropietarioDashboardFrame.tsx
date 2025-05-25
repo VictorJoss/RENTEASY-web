@@ -3,6 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Footer from "@/components/home/Footer";
 
 const navItems = [
   { href: "/panel-propietario", label: "Mis propiedades" },
@@ -52,6 +53,7 @@ export default function PropietarioDashboardFrame({ children }: { children: Reac
       <main className="flex-1 p-8 max-w-7xl mx-auto w-full">
         {children}
       </main>
+      <Footer/>
     </div>
   );
 }
