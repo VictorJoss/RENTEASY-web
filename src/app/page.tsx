@@ -1,4 +1,5 @@
 import Image from "next/image";
+// import Link from "next/link";
 
 export default function Home() {
   return (
@@ -48,6 +49,9 @@ export default function Home() {
             Read our docs
           </a>
         </div>
+        {/* <div className="mt-8">
+          <Link href="/panel-admin" className="text-xs text-blue-600 underline">Ir al panel de administrador (dev)</Link>
+        </div> */}
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
         <a
