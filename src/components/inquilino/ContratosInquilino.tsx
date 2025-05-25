@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { FileText, User, Home, CheckCircle, AlertTriangle, Calendar, X, PenLine, Eye, ChevronLeft, ChevronRight, FileSignature, Download } from "lucide-react";
 
 const mockContratos = [
   {
@@ -85,72 +86,85 @@ export default function ContratosInquilino() {
   }
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-6">Mis contratos</h2>
-      <div className="flex flex-wrap gap-4 mb-4 items-end">
-        <div>
-          <label className="block text-xs mb-1">Estado</label>
-          <select value={filtroEstado} onChange={e => { setFiltroEstado(e.target.value); setPagina(1); }} className="border rounded px-2 py-1">
-            <option value="">Todos</option>
-            {estados.map(e => <option key={e}>{e}</option>)}
-          </select>
+    <div className="max-w-5xl mx-auto">
+      <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><FileText className="w-6 h-6 text-blue-600" /> Mis contratos</h2>
+      {/* Filtros y resumen */}
+      <div className="mb-4 w-full overflow-x-auto">
+        <div className="flex gap-4 flex-nowrap bg-white/80 rounded-xl p-3 border border-blue-100 shadow-sm items-end min-w-[600px]">
+          <div className="flex flex-col min-w-[140px]">
+            <label className="block text-xs mb-1 font-semibold text-neutral-600 flex items-center gap-1"><CheckCircle className="w-4 h-4 text-green-500" /> Estado</label>
+            <div className="relative">
+              <select value={filtroEstado} onChange={e => { setFiltroEstado(e.target.value); setPagina(1); }} className="appearance-none w-full border border-green-200 rounded-lg px-3 py-2 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-green-200 transition text-sm shadow-sm">
+                <option value="">Todos</option>
+                {estados.map(e => <option key={e}>{e}</option>)}
+              </select>
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-green-300"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+            </div>
+          </div>
+          <div className="flex flex-col min-w-[160px]">
+            <label className="block text-xs mb-1 font-semibold text-neutral-600 flex items-center gap-1"><Home className="w-4 h-4 text-blue-400" /> Propiedad</label>
+            <div className="relative">
+              <select value={filtroPropiedad} onChange={e => { setFiltroPropiedad(e.target.value); setPagina(1); }} className="appearance-none w-full border border-blue-200 rounded-lg px-3 py-2 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 transition text-sm shadow-sm">
+                <option value="">Todas</option>
+                {propiedades.map(p => <option key={p}>{p}</option>)}
+              </select>
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-blue-300"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+            </div>
+          </div>
+          <div className="flex flex-col min-w-[180px]">
+            <label className="block text-xs mb-1 font-semibold text-neutral-600 flex items-center gap-1"><User className="w-4 h-4 text-blue-400" /> Buscar</label>
+            <div className="relative">
+              <input type="text" value={busqueda} onChange={e => { setBusqueda(e.target.value); setPagina(1); }} className="w-full border border-blue-200 rounded-lg px-3 py-2 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 transition text-sm shadow-sm" placeholder="Buscar por texto..." />
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-blue-300"><User className="w-4 h-4" /></span>
+            </div>
+          </div>
+          <div className="flex flex-col justify-end">
+            <Button onClick={exportarCSV} className="h-9 bg-gradient-to-r from-blue-400 to-blue-200 text-blue-900 font-semibold border border-blue-300 shadow-sm"><Download className="w-4 h-4 mr-1" /> Exportar CSV</Button>
+          </div>
         </div>
-        <div>
-          <label className="block text-xs mb-1">Propiedad</label>
-          <select value={filtroPropiedad} onChange={e => { setFiltroPropiedad(e.target.value); setPagina(1); }} className="border rounded px-2 py-1">
-            <option value="">Todas</option>
-            {propiedades.map(p => <option key={p}>{p}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs mb-1">Buscar</label>
-          <input
-            type="text"
-            value={busqueda}
-            onChange={e => { setBusqueda(e.target.value); setPagina(1); }}
-            className="border rounded px-2 py-1"
-            placeholder="Buscar por texto..."
-          />
-        </div>
-        <Button onClick={exportarCSV} className="h-9">Exportar a CSV</Button>
       </div>
+      {/* Resumen visual */}
       <div className="mb-6">
         <h3 className="font-semibold mb-2">Resumen de contratos</h3>
         <div className="flex gap-6">
           {resumen.map(r => (
-            <div key={r.estado} className="bg-neutral-100 rounded p-4 text-center min-w-[120px]">
-              <div className="text-lg font-bold">{r.cantidad}</div>
-              <div className="text-xs text-neutral-600">{r.estado}</div>
+            <div key={r.estado} className={`rounded-xl p-4 text-center min-w-[120px] shadow border ${r.estado === "Pendiente de firma" ? "bg-yellow-50 border-yellow-200" : "bg-green-50 border-green-200"}`}>
+              <div className={`text-lg font-bold flex items-center justify-center gap-1 ${r.estado === "Pendiente de firma" ? "text-yellow-600" : "text-green-700"}`}>
+                {r.estado === "Pendiente de firma" ? <AlertTriangle className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />} {r.cantidad}
+              </div>
+              <div className="text-xs text-neutral-600 mt-1">
+                <span className={`inline-block px-2 py-1 rounded font-semibold ${r.estado === "Pendiente de firma" ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"}`}>{r.estado}</span>
+              </div>
             </div>
           ))}
         </div>
       </div>
       {mensaje && <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">{mensaje}</div>}
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border rounded">
-          <thead>
+      {/* Tabla moderna */}
+      <div className="overflow-x-auto rounded-xl shadow border border-neutral-100 bg-white">
+        <table className="min-w-full text-sm align-middle">
+          <thead className="bg-gradient-to-r from-blue-50 to-white">
             <tr>
-              <th className="px-4 py-2 border-b">Propiedad</th>
-              <th className="px-4 py-2 border-b">Propietario</th>
-              <th className="px-4 py-2 border-b">Estado</th>
-              <th className="px-4 py-2 border-b">Fecha</th>
-              <th className="px-4 py-2 border-b">Acciones</th>
+              <th className="px-4 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap">Propiedad</th>
+              <th className="px-4 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap">Propietario</th>
+              <th className="px-4 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap">Estado</th>
+              <th className="px-4 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap">Fecha</th>
+              <th className="px-4 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {contratosPagina.map((c) => (
-              <tr key={c.id}>
-                <td className="px-4 py-2 border-b">{c.propiedad}</td>
-                <td className="px-4 py-2 border-b">{c.propietario}</td>
-                <td className="px-4 py-2 border-b">{c.estado}</td>
-                <td className="px-4 py-2 border-b">{c.fecha}</td>
-                <td className="px-4 py-2 border-b flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => setModalContrato(c)}>Ver contrato</Button>
-                  {c.estado === "Pendiente de firma" && (
-                    <Button size="sm" onClick={() => handleSolicitarFirma(c)} disabled={solicitando}>
-                      {solicitando ? "Solicitando..." : "Solicitar firma digital"}
-                    </Button>
-                  )}
+              <tr key={c.id} className="even:bg-blue-50/40">
+                <td className="px-4 py-3 border-b align-middle"><span className="flex items-center gap-2"><Home className="w-4 h-4 text-blue-400 shrink-0" /> {c.propiedad}</span></td>
+                <td className="px-4 py-3 border-b align-middle"><span className="flex items-center gap-2"><User className="w-4 h-4 text-blue-400 shrink-0" /> {c.propietario}</span></td>
+                <td className="px-4 py-3 border-b align-middle">
+                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${c.estado === "Pendiente de firma" ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"}`}>
+                    {c.estado === "Pendiente de firma" ? <AlertTriangle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />} {c.estado}
+                  </span>
+                </td>
+                <td className="px-4 py-3 border-b align-middle"><span className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400 shrink-0" /> {c.fecha}</span></td>
+                <td className="px-4 py-3 border-b align-middle flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setModalContrato(c)}><Eye className="w-4 h-4 mr-1" />Ver</Button>
                 </td>
               </tr>
             ))}
@@ -164,30 +178,30 @@ export default function ContratosInquilino() {
       </div>
       {/* Paginación */}
       <div className="flex justify-center gap-2 my-6">
-        <Button size="sm" variant="outline" onClick={() => setPagina(p => Math.max(1, p - 1))} disabled={pagina === 1}>Anterior</Button>
+        <Button size="sm" variant="outline" onClick={() => setPagina(p => Math.max(1, p - 1))} disabled={pagina === 1}><ChevronLeft className="w-4 h-4" /> Anterior</Button>
         <span className="px-2 py-1 text-sm">Página {pagina} de {totalPaginas}</span>
-        <Button size="sm" variant="outline" onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))} disabled={pagina === totalPaginas}>Siguiente</Button>
+        <Button size="sm" variant="outline" onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))} disabled={pagina === totalPaginas}>Siguiente <ChevronRight className="w-4 h-4" /></Button>
       </div>
       {/* Modal de contrato */}
       {modalContrato && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow max-w-lg w-full">
-            <h3 className="text-lg font-bold mb-2">Contrato de {modalContrato.propiedad}</h3>
-            <p className="mb-2"><b>Propietario:</b> {modalContrato.propietario}</p>
-            <p className="mb-2"><b>Estado:</b> {modalContrato.estado}</p>
-            <p className="mb-2"><b>Fecha:</b> {modalContrato.fecha}</p>
-            <div className="my-4">
-              <a
-                href={modalContrato.pdf}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 underline"
-              >
-                Ver contrato en PDF
-              </a>
+          <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-2xl w-full border border-blue-100 relative animate-in fade-in duration-200">
+            <button className="absolute top-3 right-3 text-neutral-400 hover:text-blue-600 text-xl" onClick={() => setModalContrato(null)} aria-label="Cerrar"><X /></button>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-700"><FileText className="w-5 h-5" /> Contrato de {modalContrato.propiedad}</h3>
+            <div className="space-y-2 mb-4">
+              <div className="flex items-center gap-2"><User className="w-4 h-4 text-blue-400" /><b>Propietario:</b> <span className="text-neutral-700">{modalContrato.propietario}</span></div>
+              <div className="flex items-center gap-2"><Home className="w-4 h-4 text-green-400" /><b>Propiedad:</b> <span className="text-neutral-700">{modalContrato.propiedad}</span></div>
+              <div className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-600" /><b>Estado:</b> <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${modalContrato.estado === "Pendiente de firma" ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"}`}>{modalContrato.estado === "Pendiente de firma" ? <AlertTriangle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />} {modalContrato.estado}</span></div>
+              <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" /><b>Fecha:</b> <span className="text-neutral-700">{modalContrato.fecha}</span></div>
+            </div>
+            {/* Visor PDF */}
+            <div className="mb-4">
+              <div className="rounded border border-blue-100 overflow-hidden shadow-sm bg-blue-50 flex flex-col items-center justify-center">
+                <iframe src={modalContrato.pdf} title="Contrato PDF" className="w-full h-72" />
+              </div>
             </div>
             <div className="flex justify-end gap-2 mt-4">
-              <Button variant="outline" onClick={() => setModalContrato(null)}>Cerrar</Button>
+              <Button variant="outline" onClick={() => setModalContrato(null)}><X className="w-4 h-4 mr-1" />Cerrar</Button>
             </div>
           </div>
         </div>
