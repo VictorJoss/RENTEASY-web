@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
-export default function Header() {
+export default function Header({ fixed = true }: { fixed?: boolean }) {
   const [open, setOpen] = useState(false);
 
   // Bloquea el scroll del body cuando el menú móvil está abierto
@@ -21,7 +21,7 @@ export default function Header() {
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg bg-white/70 border-b border-white/20"
+      className={`${fixed ? "fixed top-0 left-0 right-0" : "relative"} z-50 backdrop-blur-lg bg-white/70 border-b border-white/20`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
