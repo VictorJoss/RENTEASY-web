@@ -78,22 +78,24 @@ export default function NuevaPropiedadForm({ modoEdicion = false, datosPropiedad
   };
 
   return (
-    <section className="max-w-2xl mx-auto bg-gradient-to-br from-blue-50 via-white to-green-50 rounded-3xl p-0 md:p-10 flex flex-col items-center justify-center">
-      <div className="w-full flex flex-col items-center">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-blue-700"><Plus className="w-7 h-7" /> {modoEdicion ? "Editar propiedad" : "Nueva propiedad"}</h2>
-        <form onSubmit={handleSubmit} className="w-full grid grid-cols-1 gap-6 bg-white/80 rounded-2xl p-6 md:p-10 shadow-lg border border-white/30">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="max-w-5xl mx-auto w-full py-8">
+      <h2 className="text-3xl font-bold mb-8 flex items-center gap-3 text-blue-700"><Plus className="w-8 h-8" /> {modoEdicion ? "Editar propiedad" : "Nueva propiedad"}</h2>
+      <form onSubmit={handleSubmit} className="w-full flex flex-col gap-10">
+        {/* Datos principales */}
+        <section>
+          <h3 className="text-lg font-semibold text-blue-700 mb-4 flex items-center gap-2"><Home className="w-5 h-5" /> Datos de la propiedad</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <label className="text-xs font-semibold text-neutral-600 flex items-center gap-1"><Home className="w-4 h-4" /> Título</label>
-              <Input name="title" placeholder="Título" value={form.title} onChange={handleChange} required className="mt-1" />
+              <label className="text-sm font-semibold text-neutral-600 flex items-center gap-1 mb-2"><Home className="w-5 h-5" /> Título</label>
+              <Input name="title" placeholder="Título" value={form.title} onChange={handleChange} required className="mt-1 text-base py-3" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-neutral-600 flex items-center gap-1"><MapPin className="w-4 h-4" /> Ubicación</label>
-              <Input name="location" placeholder="Ubicación" value={form.location} onChange={handleChange} required className="mt-1" />
+              <label className="text-sm font-semibold text-neutral-600 flex items-center gap-1 mb-2"><MapPin className="w-5 h-5" /> Ubicación</label>
+              <Input name="location" placeholder="Ubicación" value={form.location} onChange={handleChange} required className="mt-1 text-base py-3" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-neutral-600 flex items-center gap-1"><FileText className="w-4 h-4" /> Tipo</label>
-              <select name="type" value={form.type} onChange={handleChange} className="w-full border rounded px-3 py-2 mt-1">
+              <label className="text-sm font-semibold text-neutral-600 flex items-center gap-1 mb-2"><FileText className="w-5 h-5" /> Tipo</label>
+              <select name="type" value={form.type} onChange={handleChange} className="w-full border rounded px-3 py-3 mt-1 text-base">
                 <option>Apartamento</option>
                 <option>Casa</option>
                 <option>Oficina</option>
@@ -101,56 +103,62 @@ export default function NuevaPropiedadForm({ modoEdicion = false, datosPropiedad
               </select>
             </div>
             <div>
-              <label className="text-xs font-semibold text-neutral-600 flex items-center gap-1"><DollarSign className="w-4 h-4" /> Precio (COP)</label>
-              <Input name="price" type="number" placeholder="Precio (COP)" value={form.price} onChange={handleChange} required className="mt-1" />
+              <label className="text-sm font-semibold text-neutral-600 flex items-center gap-1 mb-2"><DollarSign className="w-5 h-5" /> Precio (COP)</label>
+              <Input name="price" type="number" placeholder="Precio (COP)" value={form.price} onChange={handleChange} required className="mt-1 text-base py-3" />
             </div>
           </div>
-          <div>
-            <label className="text-xs font-semibold text-neutral-600 flex items-center gap-1"><ImageIcon className="w-4 h-4" /> Imágenes</label>
-            <div className="flex flex-wrap gap-3 mt-2">
-              {previews.map((img, idx) => (
-                <div key={idx} className="relative group">
-                  <img src={img} alt={`Imagen ${idx + 1}`} className="w-24 h-24 object-cover rounded-lg border shadow" />
-                  <button type="button" className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 shadow hover:bg-red-700 transition-colors" onClick={() => handleRemoveImage(idx)} aria-label="Eliminar imagen"><X className="w-4 h-4" /></button>
-                </div>
-              ))}
-              <button
-                type="button"
-                className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-lg text-blue-400 hover:bg-blue-50 transition-colors"
-                onClick={() => fileInput.current?.click()}
-                aria-label="Agregar imagen"
-              >
-                <ImageIcon className="w-8 h-8 mb-1" />
-                <span className="text-xs">Agregar</span>
-              </button>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                ref={fileInput}
-                className="hidden"
-                onChange={handleImageChange}
-              />
-            </div>
-            <span className="text-xs text-neutral-400 block mt-1">Puedes subir varias imágenes. Arrastra para cambiar el orden (próximamente).</span>
-          </div>
-          <div>
-            <label className="text-xs font-semibold text-neutral-600 flex items-center gap-1"><FileText className="w-4 h-4" /> Descripción</label>
-            <textarea
-              name="description"
-              placeholder="Descripción"
-              value={form.description}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2 min-h-[80px] mt-1"
-              required
+        </section>
+        <hr className="my-2 border-neutral-200" />
+        {/* Imágenes */}
+        <section>
+          <h3 className="text-lg font-semibold text-blue-700 mb-4 flex items-center gap-2"><ImageIcon className="w-5 h-5" /> Imágenes</h3>
+          <div className="flex flex-wrap gap-4 mt-2">
+            {previews.map((img, idx) => (
+              <div key={idx} className="relative group">
+                <img src={img} alt={`Imagen ${idx + 1}`} className="w-28 h-28 object-cover rounded-lg border shadow" />
+                <button type="button" className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 shadow hover:bg-red-700 transition-colors" onClick={() => handleRemoveImage(idx)} aria-label="Eliminar imagen"><X className="w-5 h-5" /></button>
+              </div>
+            ))}
+            <button
+              type="button"
+              className="w-28 h-28 flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-lg text-blue-400 hover:bg-blue-50 transition-colors"
+              onClick={() => fileInput.current?.click()}
+              aria-label="Agregar imagen"
+            >
+              <ImageIcon className="w-8 h-8 mb-1" />
+              <span className="text-xs">Agregar</span>
+            </button>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              ref={fileInput}
+              className="hidden"
+              onChange={handleImageChange}
             />
           </div>
-          {error && <div className="flex items-center gap-2 text-red-700 bg-red-50 border border-red-200 rounded p-2 text-sm"><X className="w-4 h-4" /> {error}</div>}
-          <Button type="submit" disabled={loading} className="mt-2 bg-gradient-to-r from-blue-600 to-green-600 text-white font-semibold shadow self-end w-full md:w-auto flex items-center gap-2">
-            {loading && <Loader2 className="w-4 h-4 animate-spin" />} {modoEdicion ? (loading ? "Guardando..." : "Guardar cambios") : (loading ? "Publicando..." : "Publicar propiedad")}
+          <span className="text-xs text-neutral-400 block mt-1">Puedes subir varias imágenes. Arrastra para cambiar el orden (próximamente).</span>
+        </section>
+        <hr className="my-2 border-neutral-200" />
+        {/* Descripción */}
+        <section>
+          <h3 className="text-lg font-semibold text-blue-700 mb-4 flex items-center gap-2"><FileText className="w-5 h-5" /> Descripción</h3>
+          <textarea
+            name="description"
+            placeholder="Descripción"
+            value={form.description}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-3 min-h-[100px] mt-1 text-base"
+            required
+          />
+        </section>
+        {error && <div className="flex items-center gap-2 text-red-700 bg-red-50 border border-red-200 rounded p-2 text-sm"><X className="w-4 h-4" /> {error}</div>}
+        <div className="flex justify-end">
+          <Button type="submit" disabled={loading} className="bg-gradient-to-r from-blue-600 to-green-600 text-white font-semibold shadow flex items-center gap-2 px-8 py-3 text-base">
+            {loading && <Loader2 className="w-5 h-5 animate-spin" />} {modoEdicion ? (loading ? "Guardando..." : "Guardar cambios") : (loading ? "Publicando..." : "Publicar propiedad")}
           </Button>
-        </form>
-      </div>
-    </section>
+        </div>
+      </form>
+    </div>
   );
 }
