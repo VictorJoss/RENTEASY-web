@@ -3,8 +3,8 @@ import AdminDashboardFrame from '@/frames/AdminDashboardFrame';
 
 export default function AdminDashboardPage() {
   return (
-    <AdminDashboardFrame>
-      <AdminDashboard/>
-    </AdminDashboardFrame>
+      <AdminDashboardFrame>
+          <AdminDashboard/>
+      </AdminDashboardFrame>
   );
 }

@@ -1,5 +1,6 @@
 import InquilinoDashboardFrame from "@/frames/InquilinoDashboardFrame";
 import BuscarPropiedades from "@/components/inquilino/BuscarPropiedades";
+import Header from "@/components/home/Header";
 
 export default function InquilinoDashboardPage() {
   return (

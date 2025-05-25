@@ -56,6 +56,7 @@ export default function AdminDashboardFrame({ children }: AdminDashboardFramePro
 
   return (
     <div className="flex min-h-screen">
+
       {/* Menú lateral */}
       <div className="w-64 bg-white border-r border-neutral-200 p-4">
         <div className="mb-8">
@@ -82,6 +83,7 @@ export default function AdminDashboardFrame({ children }: AdminDashboardFramePro
 
       {/* Contenido principal */}
       <div className="flex-1 p-4 md:p-8">
+
         <h1 className="text-2xl font-bold mb-6">Panel de administrador</h1>
         {/* Cards de resumen */}
 
