@@ -5,12 +5,12 @@ const propiedades = [
   {
     nombre: "Apartamento moderno en Bogotá",
     ubicacion: "Chapinero, Bogotá",
-    imagen: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80",
+    imagen: "https://plus.unsplash.com/premium_photo-1680106198604-fd9491c32506?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
     nombre: "Casa familiar en Medellín",
     ubicacion: "El Poblado, Medellín",
-    imagen: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80",
+    imagen: "https://images.unsplash.com/photo-1656769587046-21dc8c8e5990?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Dhttps://images.unsplash.com/photo-1651911838697-f512b7c8bb78?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
     nombre: "Estudio acogedor en Cali",
@@ -20,17 +20,17 @@ const propiedades = [
   {
     nombre: "Apartamento con vista en Cartagena",
     ubicacion: "Bocagrande, Cartagena",
-    imagen: "https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=600&q=80",
+    imagen: "https://images.unsplash.com/photo-1639126025266-8976e981bfdb?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Dhttps://images.unsplash.com/photo-1742325856038-6f26b8a01932?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
     nombre: "Loft minimalista en Barranquilla",
     ubicacion: "Riomar, Barranquilla",
-    imagen: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80",
+    imagen: "https://plus.unsplash.com/premium_photo-1733266936920-3ecd993ea118?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
     nombre: "Casa campestre en Bucaramanga",
     ubicacion: "Floridablanca, Bucaramanga",
-    imagen: "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=600&q=80",
+    imagen: "https://images.unsplash.com/photo-1641502054330-21f8889bd82a?q=80&w=2059&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
 ];
 

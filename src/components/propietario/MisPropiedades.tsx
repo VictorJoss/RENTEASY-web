@@ -5,24 +5,66 @@ import { useRouter } from "next/navigation";
 import { Home, MapPin, Edit, Trash2, BadgeCheck, BadgeX, Eye, X, Search, ChevronLeft, ChevronRight } from "lucide-react";
 
 const mockProperties = [
-  { id: 1, title: "Apartamento en Bogotá", location: "Chapinero", price: 1200000, status: "Disponible", image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80", images: [
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
-    "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80"
-  ], description: "Hermoso apartamento amoblado, cerca a universidades y transporte público." },
-  { id: 2, title: "Casa en Medellín", location: "El Poblado", price: 2500000, status: "Ocupada", image: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80", images: [
-    "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80",
-    "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80"
-  ], description: "Casa amplia con jardín y parqueadero, zona exclusiva." },
-  { id: 3, title: "Apartamento en Barranquilla", location: "Riomar", price: 1600000, status: "Disponible", image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80", images: [
-    "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
-    "https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=400&q=80"
-  ], description: "Apartamento con vista al río, excelente iluminación." },
-  { id: 4, title: "Casa en Montería", location: "Mocari", price: 1400000, status: "Disponible", image: "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80", images: [
-    "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80"
-  ], description: "Casa cómoda, cerca a centros comerciales y colegios." },
-  { id: 5, title: "Casa en Bucaramanga", location: "Floridablanca", price: 1350000, status: "Ocupada", image: "https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=400&q=80", images: [
-    "https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=400&q=80"
-  ], description: "Casa campestre, ambiente tranquilo y natural." },
+  {
+    id: 1,
+    title: "Apartamento en Bogotá",
+    location: "Chapinero",
+    type: "Apartamento",
+    price: 1200000,
+    images: ["https://plus.unsplash.com/premium_photo-1680106198604-fd9491c32506?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+    description: "Hermoso apartamento amoblado, cerca a universidades y transporte público.",
+    disponible: true,
+  },
+  {
+    id: 2,
+    title: "Casa en Medellín",
+    location: "El Poblado",
+    type: "Casa",
+    price: 2500000,
+    images: ["https://images.unsplash.com/photo-1614267300592-6ade10c2066b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+    description: "Casa amplia con jardín y parqueadero, zona exclusiva.",
+    disponible: true,
+  },
+  {
+    id: 3,
+    title: "Oficina en Cali",
+    location: "Granada",
+    type: "Oficina",
+    price: 1800000,
+    images: ["https://images.unsplash.com/photo-1746518532247-ac69272960ef?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+    description: "Oficina moderna, lista para estrenar, excelente ubicación.",
+    disponible: false,
+  },
+  {
+    id: 4,
+    title: "Casa en Montería",
+    location: "Mocari",
+    type: "Casa",
+    price: 1400000,
+    images: ["https://plus.unsplash.com/premium_photo-1733281231440-e40fb5885297?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+    description: "Casa cómoda, cerca a centros comerciales y colegios.",
+    disponible: true,
+  },
+  {
+    id: 5,
+    title: "Apartamento en Barranquilla",
+    location: "Riomar",
+    type: "Apartamento",
+    price: 1600000,
+    images: ["https://images.unsplash.com/photo-1602159222106-90ecda0e6bce?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+    description: "Apartamento con vista al río, excelente iluminación.",
+    disponible: true,
+  },
+  {
+    id: 6,
+    title: "Casa en Bucaramanga",
+    location: "Floridablanca",
+    type: "Casa",
+    price: 1350000,
+    images: ["https://images.unsplash.com/photo-1656956177437-d75123bc16dc?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+    description: "Casa campestre, ambiente tranquilo y natural.",
+    disponible: true,
+  },
 ];
 
 const PAGE_SIZE = 4;
