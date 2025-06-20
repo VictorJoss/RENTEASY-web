@@ -10,10 +10,23 @@ export async function register(data: { name: string; email: string; password: st
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Error al registrar usuario');
+    // Manejo de errores más robusto
+    const contentType = response.headers.get("content-type");
+    let errorMessage = `Error: ${response.status} ${response.statusText}`; // Mensaje por defecto
+
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || 'Error al registrar usuario';
+      } catch (e) {
+        // La respuesta decía ser JSON pero no lo era. Usamos el status text.
+        console.error("Error parsing JSON response", e);
+      }
+    }
+    throw new Error(errorMessage);
   }
 
+  // Si la respuesta es OK, el backend devuelve un MessageResponse que es JSON.
   return response.json();
 }
 
@@ -27,12 +40,22 @@ export async function login(data: { email: string; password: string }): Promise<
   });
 
   if (!response.ok) {
-    throw new Error("Credenciales incorrectas");
+    // El login sí debería devolver un error JSON o un 401 sin cuerpo.
+    // Si es 401, el mensaje será "Error: 401 Unauthorized"
+    if(response.status === 401) {
+        throw new Error("Credenciales incorrectas");
+    }
+    // Para otros errores, intentamos leer el JSON
+    try {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Error: ${response.status}`);
+    } catch (e) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
   }
 
   const userData = await response.json();
   
-  // Guardar token y datos del usuario en localStorage
   localStorage.setItem('token', userData.accessToken);
   localStorage.setItem('user', JSON.stringify({
     id: userData.id,
@@ -41,9 +64,6 @@ export async function login(data: { email: string; password: string }): Promise<
     roles: userData.roles
   }));
 
-  // El frontend espera un solo rol para la redirección.
-  // Devolvemos el primer rol, que debería ser el más específico.
-  // Ej: "ROLE_PROPIETARIO" -> "propietario"
   const mainRole = userData.roles[0].replace('ROLE_', '').toLowerCase();
   
   return { role: mainRole };
@@ -70,8 +90,7 @@ export function getUser(): any | null {
 export function logout(): void {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-  // Aquí podrías redirigir al login
-  // window.location.href = '/login';
+  window.location.reload();
 }
 
 // Puedes añadir una función para realizar llamadas autenticadas
@@ -87,10 +106,75 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}): Pro
   const response = await fetch(`${API_URL}${url}`, { ...options, headers });
 
   if (response.status === 401) {
-    // Token inválido o expirado, desloguear al usuario
     logout();
     throw new Error('Sesión expirada. Por favor, inicie sesión de nuevo.');
   }
   
   return response;
+}
+
+export async function getMyProperties() {
+    const response = await fetchWithAuth("/properties/my-properties");
+    if (!response.ok) {
+        throw new Error("Failed to fetch properties");
+    }
+    return response.json();
+}
+
+export async function deleteProperty(id: number) {
+    const response = await fetchWithAuth(`/properties/${id}`, { method: 'DELETE' });
+    if (!response.ok) {
+        throw new Error("Failed to delete property");
+    }
+    return response;
+}
+
+export async function uploadFile(file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await fetchWithAuth("/files/upload", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            // Let the browser set the Content-Type header for multipart/form-data
+        },
+    });
+    if (!response.ok) {
+        throw new Error("Failed to upload file");
+    }
+    return response.text();
+}
+
+export async function createProperty(propertyData: any) {
+    const response = await fetchWithAuth('/properties', {
+        method: 'POST',
+        body: JSON.stringify(propertyData),
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to create property');
+    }
+
+    return response.json();
+}
+
+export async function getPropertyById(id: string) {
+    const response = await fetchWithAuth(`/properties/${id}`);
+    if (!response.ok) {
+        throw new Error("Failed to fetch property");
+    }
+    return response.json();
+}
+
+export async function updateProperty(id: string, propertyData: any) {
+    const response = await fetchWithAuth(`/properties/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(propertyData),
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to update property');
+    }
+
+    return response.json();
 }
