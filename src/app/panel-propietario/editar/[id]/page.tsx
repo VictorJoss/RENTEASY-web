@@ -1,55 +1,25 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import PropietarioDashboardFrame from "@/frames/PropietarioDashboardFrame";
 import NuevaPropiedadForm from "@/components/propietario/NuevaPropiedadForm";
-import { getPropertyById } from "@/lib/api-client";
-import { Loader2 } from "lucide-react";
+import { useParams } from "next/navigation";
+
+const mockProperties = [
+  { id: "1", title: "Apartamento en Bogotá", location: "Chapinero", type: "Apartamento", price: "1200000", images: ["foto1.jpg"], description: "Hermoso apartamento en el centro de Bogotá, cerca a todo." },
+  { id: "2", title: "Casa en Medellín", location: "El Poblado", type: "Casa", price: "2500000", images: ["foto2.jpg"], description: "Casa amplia en zona exclusiva de Medellín." },
+];
 
 export default function EditarPropiedadPage() {
-  const [propertyData, setPropertyData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const { id } = useParams();
-
-  useEffect(() => {
-    if (id) {
-      const fetchProperty = async () => {
-        try {
-          const data = await getPropertyById(id as string);
-          setPropertyData(data);
-        } catch (err) {
-          setError("No se pudo cargar la propiedad.");
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchProperty();
-    }
-  }, [id]);
-
-  if (loading) {
-    return (
-      <PropietarioDashboardFrame>
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-          <p className="ml-2">Cargando datos de la propiedad...</p>
-        </div>
-      </PropietarioDashboardFrame>
-    );
-  }
-
-  if (error) {
-    return (
-      <PropietarioDashboardFrame>
-        <div className="text-red-500 text-center">{error}</div>
-      </PropietarioDashboardFrame>
-    );
-  }
+  const params = useParams();
+  const id = params?.id as string;
+  const propiedad = mockProperties.find((p) => p.id === id);
 
   return (
     <PropietarioDashboardFrame>
-      <NuevaPropiedadForm modoEdicion={true} datosPropiedad={propertyData} />
+      {propiedad ? (
+        <NuevaPropiedadForm modoEdicion={true} datosPropiedad={propiedad} />
+      ) : (
+        <div className="text-red-600 font-bold">Propiedad no encontrada</div>
+      )}
     </PropietarioDashboardFrame>
   );
 }

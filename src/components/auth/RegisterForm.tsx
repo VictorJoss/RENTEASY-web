@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { register, logout } from "@/lib/api-client";
+import { register } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -25,7 +25,6 @@ export default function RegisterForm() {
     setLoading(true);
     setError("");
     try {
-      logout();
       await register(form);
       router.push("/login?registered=true");
     } catch (err: any) {

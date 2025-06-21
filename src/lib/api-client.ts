@@ -90,7 +90,7 @@ export function getUser(): any | null {
 export function logout(): void {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-  window.location.reload();
+  window.location.href = '/login';
 }
 
 // Puedes añadir una función para realizar llamadas autenticadas
@@ -111,70 +111,4 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}): Pro
   }
   
   return response;
-}
-
-export async function getMyProperties() {
-    const response = await fetchWithAuth("/properties/my-properties");
-    if (!response.ok) {
-        throw new Error("Failed to fetch properties");
-    }
-    return response.json();
-}
-
-export async function deleteProperty(id: number) {
-    const response = await fetchWithAuth(`/properties/${id}`, { method: 'DELETE' });
-    if (!response.ok) {
-        throw new Error("Failed to delete property");
-    }
-    return response;
-}
-
-export async function uploadFile(file: File) {
-    const formData = new FormData();
-    formData.append("file", file);
-    const response = await fetchWithAuth("/files/upload", {
-        method: 'POST',
-        body: formData,
-        headers: {
-            // Let the browser set the Content-Type header for multipart/form-data
-        },
-    });
-    if (!response.ok) {
-        throw new Error("Failed to upload file");
-    }
-    return response.text();
-}
-
-export async function createProperty(propertyData: any) {
-    const response = await fetchWithAuth('/properties', {
-        method: 'POST',
-        body: JSON.stringify(propertyData),
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to create property');
-    }
-
-    return response.json();
-}
-
-export async function getPropertyById(id: string) {
-    const response = await fetchWithAuth(`/properties/${id}`);
-    if (!response.ok) {
-        throw new Error("Failed to fetch property");
-    }
-    return response.json();
-}
-
-export async function updateProperty(id: string, propertyData: any) {
-    const response = await fetchWithAuth(`/properties/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(propertyData),
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to update property');
-    }
-
-    return response.json();
 }

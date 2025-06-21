@@ -1,55 +1,94 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { Home, MapPin, Edit, Trash2, BadgeCheck, BadgeX, Eye, X, Search, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import { getMyProperties, deleteProperty } from "@/lib/api-client";
+import { Home, MapPin, Edit, Trash2, BadgeCheck, BadgeX, Eye, X, Search, ChevronLeft, ChevronRight } from "lucide-react";
+
+const mockProperties = [
+  {
+    id: 1,
+    title: "Apartamento en Bogotá",
+    location: "Chapinero",
+    type: "Apartamento",
+    price: 1200000,
+    images: ["https://plus.unsplash.com/premium_photo-1680106198604-fd9491c32506?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+    description: "Hermoso apartamento amoblado, cerca a universidades y transporte público.",
+    disponible: true,
+  },
+  {
+    id: 2,
+    title: "Casa en Medellín",
+    location: "El Poblado",
+    type: "Casa",
+    price: 2500000,
+    images: ["https://images.unsplash.com/photo-1614267300592-6ade10c2066b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+    description: "Casa amplia con jardín y parqueadero, zona exclusiva.",
+    disponible: true,
+  },
+  {
+    id: 3,
+    title: "Oficina en Cali",
+    location: "Granada",
+    type: "Oficina",
+    price: 1800000,
+    images: ["https://images.unsplash.com/photo-1746518532247-ac69272960ef?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+    description: "Oficina moderna, lista para estrenar, excelente ubicación.",
+    disponible: false,
+  },
+  {
+    id: 4,
+    title: "Casa en Montería",
+    location: "Mocari",
+    type: "Casa",
+    price: 1400000,
+    images: ["https://plus.unsplash.com/premium_photo-1733281231440-e40fb5885297?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+    description: "Casa cómoda, cerca a centros comerciales y colegios.",
+    disponible: true,
+  },
+  {
+    id: 5,
+    title: "Apartamento en Barranquilla",
+    location: "Riomar",
+    type: "Apartamento",
+    price: 1600000,
+    images: ["https://images.unsplash.com/photo-1602159222106-90ecda0e6bce?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+    description: "Apartamento con vista al río, excelente iluminación.",
+    disponible: true,
+  },
+  {
+    id: 6,
+    title: "Casa en Bucaramanga",
+    location: "Floridablanca",
+    type: "Casa",
+    price: 1350000,
+    images: ["https://images.unsplash.com/photo-1656956177437-d75123bc16dc?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+    description: "Casa campestre, ambiente tranquilo y natural.",
+    disponible: true,
+  },
+];
 
 const PAGE_SIZE = 4;
 
 export default function MisPropiedades() {
-  const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [properties, setProperties] = useState(mockProperties);
   const [modalPropiedad, setModalPropiedad] = useState<any>(null);
   const [pagina, setPagina] = useState(1);
   const [busqueda, setBusqueda] = useState("");
   const router = useRouter();
   const [imgIdx, setImgIdx] = useState(0);
 
-  useEffect(() => {
-    const fetchProperties = async () => {
-      try {
-        const data = await getMyProperties();
-        setProperties(data);
-      } catch (err) {
-        setError("No se pudieron cargar las propiedades.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProperties();
-  }, []);
-
-  const handleDelete = async (id: number) => {
+  const handleDelete = (id: number) => {
     if (window.confirm("¿Estás seguro de eliminar esta propiedad?")) {
-      try {
-        await deleteProperty(id);
-        setProperties((props) => props.filter((p: any) => p.id !== id));
-      } catch (err) {
-        setError("No se pudo eliminar la propiedad.");
-        console.error(err);
-      }
+      setProperties((props) => props.filter((p) => p.id !== id));
     }
   };
 
   const total = properties.length;
-  const disponibles = properties.filter((p: any) => p.status === "DISPONIBLE").length;
-  const ocupadas = properties.filter((p: any) => p.status === "OCUPADA").length;
+  const disponibles = properties.filter(p => p.status === "Disponible").length;
+  const ocupadas = properties.filter(p => p.status === "Ocupada").length;
 
   // Filtro de búsqueda
-  const propiedadesFiltradas = properties.filter((p: any) =>
+  const propiedadesFiltradas = properties.filter(p =>
     busqueda
       ? p.title.toLowerCase().includes(busqueda.toLowerCase()) ||
         p.location.toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -59,19 +98,6 @@ export default function MisPropiedades() {
 
   const totalPaginas = Math.ceil(propiedadesFiltradas.length / PAGE_SIZE) || 1;
   const propiedadesPagina = propiedadesFiltradas.slice((pagina - 1) * PAGE_SIZE, pagina * PAGE_SIZE);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-        <p className="ml-2">Cargando propiedades...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return <div className="text-red-500 text-center">{error}</div>;
-  }
 
   return (
     <div>
@@ -116,19 +142,19 @@ export default function MisPropiedades() {
       </div>
       {/* Cards visuales con paginación */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {propiedadesPagina.map((prop: any) => {
-          const imgs = Array.isArray(prop.images) ? prop.images : [];
+        {propiedadesPagina.map((prop) => {
+          const imgs = Array.isArray(prop.images) ? prop.images : [prop.image];
           return (
             <div key={prop.id} className="bg-white/90 rounded-2xl shadow-lg border border-white/30 flex flex-col overflow-hidden">
               <div className="relative w-full h-44">
-                <img src={imgs[0] || 'https://via.placeholder.com/300'} alt={prop.title} className="w-full h-44 object-cover" />
+                <img src={imgs[0]} alt={prop.title} className="w-full h-44 object-cover" />
                 {imgs.length > 1 && (
                   <span className="absolute bottom-2 right-2 bg-black/60 text-white text-xs rounded px-2 py-1">{imgs.length} fotos</span>
                 )}
               </div>
               <div className="p-4 flex flex-col flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className={`px-2 py-1 rounded text-xs font-semibold ${prop.status === "DISPONIBLE" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>{prop.status}</span>
+                  <span className={`px-2 py-1 rounded text-xs font-semibold ${prop.status === "Disponible" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>{prop.status}</span>
                 </div>
                 <h3 className="font-bold text-lg text-blue-700 mb-1 flex items-center gap-2"><Home className="w-5 h-5" /> {prop.title}</h3>
                 <div className="text-neutral-500 text-sm mb-2 flex items-center gap-1"><MapPin className="w-4 h-4" /> {prop.location}</div>
@@ -165,10 +191,12 @@ export default function MisPropiedades() {
               let imgs: string[] = [];
               if (Array.isArray(modalPropiedad.images)) {
                 imgs = modalPropiedad.images;
+              } else if (modalPropiedad.image) {
+                imgs = [modalPropiedad.image];
               }
               return (
                 <div className="relative w-full h-44 mb-3 flex items-center justify-center">
-                  <img src={imgs[imgIdx] || 'https://via.placeholder.com/300'} alt={modalPropiedad.title} className="rounded-xl w-full h-44 object-cover" />
+                  <img src={imgs[imgIdx]} alt={modalPropiedad.title} className="rounded-xl w-full h-44 object-cover" />
                   {imgs.length > 1 && (
                     <>
                       <button
@@ -194,7 +222,7 @@ export default function MisPropiedades() {
             <h3 className="text-lg font-bold mb-2 text-blue-700 flex items-center gap-2"><Home className="w-5 h-5" /> {modalPropiedad.title}</h3>
             <div className="text-neutral-500 text-sm mb-2 flex items-center gap-1"><MapPin className="w-4 h-4" /> {modalPropiedad.location}</div>
             <div className="text-green-700 font-bold text-xl mb-2">${modalPropiedad.price.toLocaleString("es-CO")}</div>
-            <span className={`px-2 py-1 rounded text-xs font-semibold ${modalPropiedad.status === "DISPONIBLE" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>{modalPropiedad.status}</span>
+            <span className={`px-2 py-1 rounded text-xs font-semibold ${modalPropiedad.status === "Disponible" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>{modalPropiedad.status}</span>
             <p className="text-neutral-700 text-sm mt-4">{modalPropiedad.description}</p>
             <Button className="w-full mt-4" onClick={() => setModalPropiedad(null)}>Cerrar</Button>
           </div>

@@ -22,7 +22,7 @@ export default function LoginForm() {
       const { role } = await login(form);
       if (role === "propietario") router.push("/panel-propietario");
       else if (role === "inquilino") router.push("/panel-inquilino");
-      else if (role === "admin") router.push("/panel-admin");
+      else if (role === "admin") router.push("/admin");
       else setError("Rol desconocido");
     } catch (e) {
       setError("Credenciales incorrectas");

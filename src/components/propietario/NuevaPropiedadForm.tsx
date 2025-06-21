@@ -2,9 +2,22 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Home, MapPin, Image as ImageIcon, DollarSign, FileText, Loader2, X, Plus } from "lucide-react";
-import { uploadFile, createProperty, updateProperty } from "@/lib/api-client";
+
+interface NuevaPropiedadFormProps {
+  modoEdicion?: boolean;
+  datosPropiedad?: FormState;
+}
+
+const mockEditData = {
+  title: "Apartamento en Bogotá",
+  location: "Chapinero",
+  type: "Apartamento",
+  price: "1200000",
+  images: ["foto1.jpg", "foto2.jpg"],
+  description: "Hermoso apartamento en el centro de Bogotá, cerca a todo.",
+};
 
 interface FormState {
   title: string;
@@ -15,13 +28,8 @@ interface FormState {
   description: string;
 }
 
-interface NuevaPropiedadFormProps {
-  modoEdicion?: boolean;
-  datosPropiedad?: FormState | null;
-}
-
 export default function NuevaPropiedadForm({ modoEdicion = false, datosPropiedad }: NuevaPropiedadFormProps) {
-  const [form, setForm] = useState<FormState>({
+  const [form, setForm] = useState<FormState>(datosPropiedad || {
     title: "",
     location: "",
     type: "Apartamento",
@@ -30,11 +38,10 @@ export default function NuevaPropiedadForm({ modoEdicion = false, datosPropiedad
     description: "",
   });
   const [loading, setLoading] = useState(false);
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [previews, setPreviews] = useState<string[]>(datosPropiedad?.images || []);
   const [error, setError] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const { id } = useParams();
 
   useEffect(() => {
     if (modoEdicion && datosPropiedad) {
@@ -45,19 +52,11 @@ export default function NuevaPropiedadForm({ modoEdicion = false, datosPropiedad
 
   const handleChange = (e: any) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleImageChange = async (e: any) => {
-    const files = Array.from(e.target.files) as File[];
-    setLoading(true);
-    try {
-      const uploadPromises = files.map(uploadFile);
-      const urls = await Promise.all(uploadPromises);
-      setPreviews((prev) => [...prev, ...urls]);
-      setForm((prevForm) => ({ ...prevForm, images: [...prevForm.images, ...urls] }));
-    } catch (err) {
-      setError("Error al subir las imágenes.");
-    } finally {
-      setLoading(false);
-    }
+  const handleImageChange = (e: any) => {
+    const files = Array.from(e.target.files);
+    const urls = files.map((f: any) => URL.createObjectURL(f));
+    setPreviews((prev) => [...prev, ...urls]);
+    setForm({ ...form, images: [...form.images, ...urls] });
   };
 
   const handleRemoveImage = (idx: number) => {
@@ -73,18 +72,9 @@ export default function NuevaPropiedadForm({ modoEdicion = false, datosPropiedad
       return;
     }
     setLoading(true);
-    try {
-      if (modoEdicion) {
-        await updateProperty(id as string, form);
-      } else {
-        await createProperty(form);
-      }
-      router.push("/panel-propietario");
-    } catch (err: any) {
-        setError(err.message || "Ocurrió un error inesperado.");
-    } finally {
-        setLoading(false);
-    }
+    await new Promise((res) => setTimeout(res, 1000));
+    setLoading(false);
+    router.push("/panel-propietario");
   };
 
   return (
@@ -147,7 +137,7 @@ export default function NuevaPropiedadForm({ modoEdicion = false, datosPropiedad
               onChange={handleImageChange}
             />
           </div>
-          <span className="text-xs text-neutral-400 block mt-1">Puedes subir varias imágenes.</span>
+          <span className="text-xs text-neutral-400 block mt-1">Puedes subir varias imágenes. Arrastra para cambiar el orden (próximamente).</span>
         </section>
         <hr className="my-2 border-neutral-200" />
         {/* Descripción */}
