@@ -47,13 +47,13 @@ export default function LoginForm() {
         >
           ¿No tienes cuenta? Crear cuenta
         </button>
-        <button
+        {/* <button
           type="button"
           className="text-blue-600 hover:underline"
           onClick={() => router.push("/recuperar")}
         >
           ¿Olvidaste tu contraseña?
-        </button>
+        </button> */}
       </div>
     </Card>
   );

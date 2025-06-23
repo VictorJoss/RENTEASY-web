@@ -22,8 +22,14 @@ export default function RegisterForm() {
 
   const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
+
+    if (form.password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+
+    setLoading(true);
     try {
       await register(form);
       router.push("/login?registered=true");

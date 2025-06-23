@@ -4,6 +4,7 @@ import Link from "next/link";
 import { User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/home/Footer";
+import { logout } from "@/lib/api-client";
 
 const navItems = [
   { href: "/panel-inquilino", label: "Resumen" },
@@ -41,10 +42,7 @@ export default function InquilinoDashboardFrame({ children }: { children: React.
           </nav>
           {/* Acciones usuario */}
           <div className="flex items-center gap-3">
-            <Link href="/panel-inquilino/editar-perfil" className="flex items-center gap-2 px-3 py-2 rounded hover:bg-blue-50 text-blue-700 font-semibold transition-colors">
-              <User className="w-5 h-5" /> <span className="hidden md:inline">Editar perfil</span>
-            </Link>
-            <Button variant="destructive" className="flex items-center gap-2 px-3 py-2" onClick={() => {/* lógica de logout */}}>
+            <Button variant="destructive" className="flex items-center gap-2 px-3 py-2" onClick={async () => await logout()}>
               <LogOut className="w-5 h-5" /> <span className="hidden md:inline">Cerrar sesión</span>
             </Button>
           </div>

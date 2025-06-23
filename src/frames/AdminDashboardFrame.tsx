@@ -13,10 +13,7 @@ Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Too
 const menuItems = [
   { label: "Dashboard", href: "/panel-admin", icon: <BarChart2 size={20} /> },
   { label: "Usuarios", href: "/panel-admin/usuarios", icon: <Users size={20} /> },
-  { label: "Soporte", href: "/panel-admin/soporte", icon: <MessageSquare size={20} /> },
-  { label: "Auditoría", href: "/panel-admin/auditoria", icon: <History size={20} /> },
   { label: "Reportes", href: "/panel-admin/reportes", icon: <FileTextIcon size={20} /> },
-  { label: "Contenido", href: "/panel-admin/contenido", icon: <Settings size={20} /> },
 ];
 
 const actividad = {
