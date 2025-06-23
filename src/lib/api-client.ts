@@ -118,3 +118,15 @@ export const uploadFiles = (files: FileList) => {
 };
 
 export const getFeaturedProperties = () => apiClient.get('/api/properties/random');
+
+export const getPublicPropertyById = (id: string) => apiClient.get(`/api/properties/public/${id}`);
+
+export const createRentalApplication = (propertyId: number) => {
+    return apiClient.post('/api/rental-applications', { propertyId });
+};
+
+export const getOwnerApplications = () => apiClient.get('/api/rental-applications/owner');
+
+export const updateApplicationStatus = (id: number, status: string) => {
+    return apiClient.put(`/api/rental-applications/${id}/status`, { status });
+};

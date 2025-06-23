@@ -8,6 +8,7 @@ import { logout } from "@/lib/api-client";
 
 const navItems = [
   { href: "/panel-propietario", label: "Mis propiedades" },
+  { href: "/panel-propietario/solicitudes", label: "Solicitudes" },
   { href: "/panel-propietario/contratos", label: "Contratos" },
   { href: "/panel-propietario/pagos", label: "Pagos" },
   { href: "/panel-propietario/estadisticas", label: "Estadísticas" },
