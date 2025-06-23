@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { Home, MapPin, Image as ImageIcon, DollarSign, FileText, Loader2, X, Plus } from "lucide-react";
+import { createProperty, updateProperty } from "@/lib/api-client";
 
 interface NuevaPropiedadFormProps {
   modoEdicion?: boolean;
-  datosPropiedad?: FormState;
+  datosPropiedad?: FormState & { id?: number };
 }
 
 const mockEditData = {
@@ -24,7 +25,7 @@ interface FormState {
   location: string;
   type: string;
   price: string;
-  images: string[];
+  images: File[];
   description: string;
 }
 
@@ -38,33 +39,62 @@ export default function NuevaPropiedadForm({ modoEdicion = false, datosPropiedad
     description: "",
   });
   const [loading, setLoading] = useState(false);
-  const [previews, setPreviews] = useState<string[]>(datosPropiedad?.images || []);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [error, setError] = useState("");
+  const [displayPrice, setDisplayPrice] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   useEffect(() => {
     if (modoEdicion && datosPropiedad) {
-      setForm(datosPropiedad);
-      setPreviews(datosPropiedad.images || []);
+      const initialFormState = {
+        ...datosPropiedad,
+        images: [],
+      };
+      setForm(initialFormState);
+      setPreviews(datosPropiedad.images as unknown as string[]);
+      if (datosPropiedad.price) {
+        setDisplayPrice(new Intl.NumberFormat('es-CO').format(Number(datosPropiedad.price)));
+      }
     }
   }, [modoEdicion, datosPropiedad]);
 
-  const handleChange = (e: any) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
 
-  const handleImageChange = (e: any) => {
-    const files = Array.from(e.target.files);
-    const urls = files.map((f: any) => URL.createObjectURL(f));
-    setPreviews((prev) => [...prev, ...urls]);
-    setForm({ ...form, images: [...form.images, ...urls] });
+    if (name === "price") {
+      const numericValue = value.replace(/\D/g, '');
+      if (numericValue) {
+        setDisplayPrice(new Intl.NumberFormat('es-CO').format(Number(numericValue)));
+      } else {
+        setDisplayPrice('');
+      }
+      setForm({ ...form, [name]: numericValue });
+    } else {
+      setForm({ ...form, [name]: value });
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      const newImages = [...form.images, ...files];
+      setForm({ ...form, images: newImages });
+
+      const newPreviews = files.map(file => URL.createObjectURL(file));
+      setPreviews(prev => [...prev, ...newPreviews]);
+    }
   };
 
   const handleRemoveImage = (idx: number) => {
-    setPreviews((prev) => prev.filter((_, i) => i !== idx));
-    setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== idx) }));
+    const newImages = form.images.filter((_, i) => i !== idx);
+    setForm({ ...form, images: newImages });
+
+    const newPreviews = previews.filter((_, i) => i !== idx);
+    setPreviews(newPreviews);
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (!form.title || !form.location || !form.price || !form.description || form.images.length === 0) {
@@ -72,9 +102,18 @@ export default function NuevaPropiedadForm({ modoEdicion = false, datosPropiedad
       return;
     }
     setLoading(true);
-    await new Promise((res) => setTimeout(res, 1000));
-    setLoading(false);
-    router.push("/panel-propietario");
+    try {
+      if (modoEdicion && datosPropiedad?.id) {
+        await updateProperty(datosPropiedad.id, form);
+      } else {
+        await createProperty(form);
+      }
+      router.push("/panel-propietario");
+    } catch (err: any) {
+      setError(err.message || `Ocurrió un error al ${modoEdicion ? 'actualizar' : 'crear'} la propiedad.`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -104,7 +143,7 @@ export default function NuevaPropiedadForm({ modoEdicion = false, datosPropiedad
             </div>
             <div>
               <label className="text-sm font-semibold text-neutral-600 flex items-center gap-1 mb-2"><DollarSign className="w-5 h-5" /> Precio (COP)</label>
-              <Input name="price" type="number" placeholder="Precio (COP)" value={form.price} onChange={handleChange} required className="mt-1 text-base py-3" />
+              <Input name="price" type="text" placeholder="Ej: 1.200.000" value={displayPrice} onChange={handleChange} required className="mt-1 text-base py-3" />
             </div>
           </div>
         </section>

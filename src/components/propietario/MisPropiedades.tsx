@@ -1,85 +1,45 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { Home, MapPin, Edit, Trash2, BadgeCheck, BadgeX, Eye, X, Search, ChevronLeft, ChevronRight } from "lucide-react";
-
-const mockProperties = [
-  {
-    id: 1,
-    title: "Apartamento en Bogotá",
-    location: "Chapinero",
-    type: "Apartamento",
-    price: 1200000,
-    images: ["https://plus.unsplash.com/premium_photo-1680106198604-fd9491c32506?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
-    description: "Hermoso apartamento amoblado, cerca a universidades y transporte público.",
-    disponible: true,
-  },
-  {
-    id: 2,
-    title: "Casa en Medellín",
-    location: "El Poblado",
-    type: "Casa",
-    price: 2500000,
-    images: ["https://images.unsplash.com/photo-1614267300592-6ade10c2066b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
-    description: "Casa amplia con jardín y parqueadero, zona exclusiva.",
-    disponible: true,
-  },
-  {
-    id: 3,
-    title: "Oficina en Cali",
-    location: "Granada",
-    type: "Oficina",
-    price: 1800000,
-    images: ["https://images.unsplash.com/photo-1746518532247-ac69272960ef?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
-    description: "Oficina moderna, lista para estrenar, excelente ubicación.",
-    disponible: false,
-  },
-  {
-    id: 4,
-    title: "Casa en Montería",
-    location: "Mocari",
-    type: "Casa",
-    price: 1400000,
-    images: ["https://plus.unsplash.com/premium_photo-1733281231440-e40fb5885297?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
-    description: "Casa cómoda, cerca a centros comerciales y colegios.",
-    disponible: true,
-  },
-  {
-    id: 5,
-    title: "Apartamento en Barranquilla",
-    location: "Riomar",
-    type: "Apartamento",
-    price: 1600000,
-    images: ["https://images.unsplash.com/photo-1602159222106-90ecda0e6bce?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
-    description: "Apartamento con vista al río, excelente iluminación.",
-    disponible: true,
-  },
-  {
-    id: 6,
-    title: "Casa en Bucaramanga",
-    location: "Floridablanca",
-    type: "Casa",
-    price: 1350000,
-    images: ["https://images.unsplash.com/photo-1656956177437-d75123bc16dc?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
-    description: "Casa campestre, ambiente tranquilo y natural.",
-    disponible: true,
-  },
-];
+import { Home, MapPin, Edit, Trash2, BadgeCheck, BadgeX, Eye, X, Search, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { getMyProperties, deleteProperty } from "@/lib/api-client";
 
 const PAGE_SIZE = 4;
 
 export default function MisPropiedades() {
-  const [properties, setProperties] = useState(mockProperties);
+  const [properties, setProperties] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [modalPropiedad, setModalPropiedad] = useState<any>(null);
   const [pagina, setPagina] = useState(1);
   const [busqueda, setBusqueda] = useState("");
   const router = useRouter();
   const [imgIdx, setImgIdx] = useState(0);
 
-  const handleDelete = (id: number) => {
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const data = await getMyProperties();
+        setProperties(data);
+      } catch (err: any) {
+        setError("Error al cargar las propiedades. Inténtalo de nuevo más tarde.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, []);
+
+  const handleDelete = async (id: number) => {
     if (window.confirm("¿Estás seguro de eliminar esta propiedad?")) {
-      setProperties((props) => props.filter((p) => p.id !== id));
+      try {
+        await deleteProperty(id);
+        setProperties((prev) => prev.filter((p) => p.id !== id));
+      } catch (err: any) {
+        alert(err.message || "Error al eliminar la propiedad.");
+      }
     }
   };
 
@@ -140,47 +100,66 @@ export default function MisPropiedades() {
           <Button onClick={() => router.push("/panel-propietario/nueva")}>Nueva Propiedad</Button>
         </div>
       </div>
-      {/* Cards visuales con paginación */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {propiedadesPagina.map((prop) => {
-          const imgs = Array.isArray(prop.images) ? prop.images : [prop.image];
-          return (
-            <div key={prop.id} className="bg-white/90 rounded-2xl shadow-lg border border-white/30 flex flex-col overflow-hidden">
-              <div className="relative w-full h-44">
-                <img src={imgs[0]} alt={prop.title} className="w-full h-44 object-cover" />
-                {imgs.length > 1 && (
-                  <span className="absolute bottom-2 right-2 bg-black/60 text-white text-xs rounded px-2 py-1">{imgs.length} fotos</span>
-                )}
-              </div>
-              <div className="p-4 flex flex-col flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className={`px-2 py-1 rounded text-xs font-semibold ${prop.status === "Disponible" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>{prop.status}</span>
+
+      {loading && (
+        <div className="flex justify-center items-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          <p className="ml-2">Cargando propiedades...</p>
+        </div>
+      )}
+
+      {error && (
+        <div className="text-red-500 text-center py-12">
+          {error}
+        </div>
+      )}
+
+      {!loading && !error && (
+        <>
+          {/* Cards visuales con paginación */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {propiedadesPagina.map((prop) => {
+              const imgs = Array.isArray(prop.images) ? prop.images : [prop.image];
+              return (
+                <div key={prop.id} className="bg-white/90 rounded-2xl shadow-lg border border-white/30 flex flex-col overflow-hidden">
+                  <div className="relative w-full h-44">
+                    <img src={imgs[0]} alt={prop.title} className="w-full h-44 object-cover" />
+                    {imgs.length > 1 && (
+                      <span className="absolute bottom-2 right-2 bg-black/60 text-white text-xs rounded px-2 py-1">{imgs.length} fotos</span>
+                    )}
+                  </div>
+                  <div className="p-4 flex flex-col flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${prop.status === "Disponible" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>{prop.status}</span>
+                    </div>
+                    <h3 className="font-bold text-lg text-blue-700 mb-1 flex items-center gap-2"><Home className="w-5 h-5" /> {prop.title}</h3>
+                    <div className="text-neutral-500 text-sm mb-2 flex items-center gap-1"><MapPin className="w-4 h-4" /> {prop.location}</div>
+                    <div className="text-green-700 font-bold text-xl mb-2">${prop.price.toLocaleString("es-CO")}</div>
+                    <p className="text-neutral-700 text-sm mb-3 line-clamp-2">{prop.description}</p>
+                    <div className="flex gap-2 mt-auto flex-wrap">
+                      <Button size="sm" variant="secondary" onClick={() => setModalPropiedad(prop)}><Eye className="w-4 h-4 mr-1" />Ver detalles</Button>
+                      <Button size="sm" variant="outline" onClick={() => router.push(`/panel-propietario/editar/${prop.id}`)}><Edit className="w-4 h-4 mr-1" />Editar</Button>
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(prop.id)}><Trash2 className="w-4 h-4 mr-1" />Eliminar</Button>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="font-bold text-lg text-blue-700 mb-1 flex items-center gap-2"><Home className="w-5 h-5" /> {prop.title}</h3>
-                <div className="text-neutral-500 text-sm mb-2 flex items-center gap-1"><MapPin className="w-4 h-4" /> {prop.location}</div>
-                <div className="text-green-700 font-bold text-xl mb-2">${prop.price.toLocaleString("es-CO")}</div>
-                <p className="text-neutral-700 text-sm mb-3 line-clamp-2">{prop.description}</p>
-                <div className="flex gap-2 mt-auto flex-wrap">
-                  <Button size="sm" variant="secondary" onClick={() => setModalPropiedad(prop)}><Eye className="w-4 h-4 mr-1" />Ver detalles</Button>
-                  <Button size="sm" variant="outline" onClick={() => router.push(`/panel-propietario/editar/${prop.id}`)}><Edit className="w-4 h-4 mr-1" />Editar</Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleDelete(prop.id)}><Trash2 className="w-4 h-4 mr-1" />Eliminar</Button>
-                </div>
+              );
+            })}
+            {propiedadesPagina.length === 0 && (
+              <div className="col-span-full text-center text-neutral-400 py-12">
+                No has publicado ninguna propiedad todavía.
               </div>
-            </div>
-          );
-        })}
-        {propiedadesPagina.length === 0 && (
-          <div className="col-span-full text-center text-neutral-400 py-12">
-            No se encontraron propiedades para la búsqueda ingresada.
+            )}
           </div>
-        )}
-      </div>
-      {/* Paginación */}
-      <div className="flex justify-center gap-2 my-6">
-        <Button size="sm" variant="outline" onClick={() => setPagina(p => Math.max(1, p - 1))} disabled={pagina === 1}>Anterior</Button>
-        <span className="px-2 py-1 text-sm">Página {pagina} de {totalPaginas}</span>
-        <Button size="sm" variant="outline" onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))} disabled={pagina === totalPaginas}>Siguiente</Button>
-      </div>
+          {/* Paginación */}
+          <div className="flex justify-center gap-2 my-6">
+            <Button size="sm" variant="outline" onClick={() => setPagina(p => Math.max(1, p - 1))} disabled={pagina === 1}>Anterior</Button>
+            <span className="px-2 py-1 text-sm">Página {pagina} de {totalPaginas}</span>
+            <Button size="sm" variant="outline" onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))} disabled={pagina === totalPaginas}>Siguiente</Button>
+          </div>
+        </>
+      )}
+
       {/* Modal de detalle */}
       {modalPropiedad && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
