@@ -75,24 +75,15 @@ export async function logout(): Promise<void> {
 // Se puede crear una instancia de apiClient exportada para usar en otras partes
 export { apiClient };
 
-export async function uploadFile(file: File): Promise<string> {
+export const uploadFile = (file: File) => {
   const formData = new FormData();
   formData.append('file', file);
-
-  try {
-    const response = await apiClient.post('/api/files/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Error al subir el archivo');
-    }
-    throw new Error('Error de red o del servidor al subir el archivo');
-  }
-}
+  return apiClient.post('/api/files/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }).then(response => response.data);
+};
 
 export const getMyProperties = () => apiClient.get('/api/properties/my-properties');
 
@@ -125,8 +116,26 @@ export const createRentalApplication = (propertyId: number) => {
     return apiClient.post('/api/rental-applications', { propertyId });
 };
 
-export const getOwnerApplications = () => apiClient.get('/api/rental-applications/owner');
+export const getOwnerApplications = async () => {
+  const response = await apiClient.get('/api/rental-applications/owner');
+  return response.data;
+};
 
-export const updateApplicationStatus = (id: number, status: string) => {
-    return apiClient.put(`/api/rental-applications/${id}/status`, { status });
+export const updateApplicationStatus = async (id: number, status: string) => {
+  const response = await apiClient.put(`/api/rental-applications/${id}/status`, { status });
+  return response.data;
+};
+
+export const getTenantContracts = async () => {
+  const response = await apiClient.get('/api/contracts/my-contracts');
+  return response.data;
+};
+
+export const getContractPaymentUrl = async (contractId: number) => {
+  const response = await apiClient.get(`/contracts/${contractId}/payment-url`);
+  return response.data;
+};
+
+export const createContract = async (contractData: any) => {
+  // ... existing code ...
 };

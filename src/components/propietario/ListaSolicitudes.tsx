@@ -29,8 +29,8 @@ export default function ListaSolicitudes() {
     const fetchApplications = async () => {
         try {
             setLoading(true);
-            const response = await getOwnerApplications();
-            setApplications(response.data);
+            const data = await getOwnerApplications();
+            setApplications(data);
         } catch (err) {
             setError('No se pudieron cargar las solicitudes.');
         } finally {
@@ -41,9 +41,8 @@ export default function ListaSolicitudes() {
     const handleUpdateStatus = async (id: number, status: 'APROBADA' | 'RECHAZADA') => {
         setUpdatingId(id);
         try {
-            const response = await updateApplicationStatus(id, status);
-            // Update the local state to reflect the change immediately
-            setApplications(apps => apps.map(app => app.id === id ? response.data : app));
+            const updatedApplication = await updateApplicationStatus(id, status);
+            setApplications(apps => apps.map(app => app.id === id ? updatedApplication : app));
         } catch (err) {
             // TODO: Add better error handling, like a toast notification
             console.error(`Error updating application ${id} to ${status}`, err);

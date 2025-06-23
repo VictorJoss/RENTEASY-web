@@ -1,10 +1,19 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Home, Search, FileText, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/home/Footer";
 import { logout } from "@/lib/api-client";
+import {
+    Bell,
+    LineChart,
+    Package,
+    Package2,
+    ShoppingCart,
+    Users
+} from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 const navItems = [
   { href: "/panel-inquilino", label: "Resumen" },
@@ -26,19 +35,42 @@ export default function InquilinoDashboardFrame({ children }: { children: React.
             <span className="hidden md:inline text-neutral-400 font-semibold text-sm ml-2">Inquilino</span>
           </Link>
           {/* Navegación */}
-          <nav className="flex-1 flex justify-center">
-            <ul className="flex gap-6 md:gap-10 items-center">
-              {navItems.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="text-neutral-700 font-medium hover:text-blue-600 transition-colors px-2 py-1 rounded"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
+            <Link
+              href="/panel-inquilino/resumen"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+            >
+              <Home className="h-4 w-4" />
+              Resumen
+            </Link>
+            <Link
+              href="/panel-inquilino/buscar"
+              className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
+            >
+              <Search className="h-4 w-4" />
+              Buscar Propiedades
+            </Link>
+            <Link
+              href="/panel-inquilino/contratos"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+            >
+              <FileText className="h-4 w-4" />
+              Mis Contratos
+            </Link>
+            <Link
+              href="/panel-inquilino/pagos"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+            >
+              <CreditCard className="h-4 w-4" />
+              Historial de Pagos
+            </Link>
+            <Link
+              href="/panel-inquilino/incidencias"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+            >
+              <Bell className="h-4 w-4" />
+              Mis incidencias
+            </Link>
           </nav>
           {/* Acciones usuario */}
           <div className="flex items-center gap-3">
