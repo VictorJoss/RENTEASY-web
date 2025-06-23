@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Home, MapPin, Edit, Trash2, BadgeCheck, BadgeX, Eye, X, Search, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { getMyProperties, deleteProperty } from "@/lib/api-client";
 
-const PAGE_SIZE = 4;
+const PAGE_SIZE = 6;
 
 export default function MisPropiedades() {
   const [properties, setProperties] = useState<any[]>([]);
