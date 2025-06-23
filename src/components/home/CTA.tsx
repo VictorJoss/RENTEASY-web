@@ -18,14 +18,23 @@ export default function CTA() {
           <p className="text-xl mb-8 text-neutral-600">
             Automatiza tus procesos de arriendo en minutos
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-gradient-to-r from-blue-600 to-green-600 text-white hover:from-blue-700 hover:to-green-700">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-blue-600 to-green-600 text-white hover:from-blue-700 hover:to-green-700"
+              onClick={() => window.location.href = "/registro"}
+            >
               Registrarse como propietario
             </Button>
-            <Button size="lg" variant="outline" className="border-2 border-blue-600/20 text-blue-600 hover:bg-blue-50">
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-2 border-blue-600/20 text-blue-600 hover:bg-blue-50"
+              onClick={() => window.location.href = "/registro"}
+            >
               Registrarse como inquilino
             </Button>
-          </div>
+            </div>
         </motion.div>
       </div>
     </section>
