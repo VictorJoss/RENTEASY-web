@@ -98,7 +98,7 @@ export const createProperty = (data: any) => {
 
 export const updateProperty = (id: string, data: any) => apiClient.put(`/api/properties/${id}`, data);
 
-export const deleteProperty = (id: string) => apiClient.delete(`/api/properties/${id}`);
+export const archiveProperty = (id: number) => apiClient.delete(`/api/properties/${id}`);
 
 export const uploadFiles = (files: FileList) => {
   const uploadPromises: Promise<string>[] = [];

@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { Home, MapPin, Edit, Trash2, BadgeCheck, BadgeX, Eye, X, Search, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import { getMyProperties, deleteProperty } from "@/lib/api-client";
+import { Home, MapPin, Edit, Trash2, BadgeCheck, BadgeX, Eye, X, Search, ChevronLeft, ChevronRight, Loader2, Archive } from "lucide-react";
+    import { getMyProperties, archiveProperty } from "@/lib/api-client";
 
 const PAGE_SIZE = 6;
 
@@ -32,17 +32,16 @@ export default function MisPropiedades() {
     fetchProperties();
   }, []);
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm("¿Estás seguro de eliminar esta propiedad?")) {
-      try {
-        await deleteProperty(id);
-        setProperties((prev) => prev.filter((p) => p.id !== id));
-      } catch (err: any) {
-        alert(err.message || "Error al eliminar la propiedad.");
+    const handleArchive = async (id: number) => {
+      if (window.confirm("¿Estás seguro de archivar esta propiedad? Ya no será visible públicamente ni para ti.")) {
+        try {
+          await archiveProperty(id);
+          setProperties((prev) => prev.filter((p) => p.id !== id));
+        } catch (err: any) {
+          alert(err.message || "Error al archivar la propiedad.");
+        }
       }
-    }
-  };
-
+    };
   const total = properties.length;
   const disponibles = properties.filter(p => p.status === "DISPONIBLE").length;
   const ocupadas = properties.filter(p => p.status === "OCUPADO").length;
@@ -140,7 +139,7 @@ export default function MisPropiedades() {
                     <div className="flex gap-2 mt-auto flex-wrap">
                       <Button size="sm" variant="secondary" onClick={() => setModalPropiedad(prop)}><Eye className="w-4 h-4 mr-1" />Ver detalles</Button>
                       <Button size="sm" variant="outline" onClick={() => router.push(`/panel-propietario/editar/${prop.id}`)}><Edit className="w-4 h-4 mr-1" />Editar</Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleDelete(prop.id)}><Trash2 className="w-4 h-4 mr-1" />Eliminar</Button>
+    <Button size="sm" variant="destructive" onClick={() => handleArchive(prop.id)}><Archive className="w-4 h-4 mr-1" />Archivar</Button>
                     </div>
                   </div>
                 </div>
