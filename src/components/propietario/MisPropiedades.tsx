@@ -20,8 +20,8 @@ export default function MisPropiedades() {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const data = await getMyProperties();
-        setProperties(data);
+        const response = await getMyProperties();
+        setProperties(response.data);
       } catch (err: any) {
         setError("Error al cargar las propiedades. Inténtalo de nuevo más tarde.");
       } finally {
@@ -44,14 +44,15 @@ export default function MisPropiedades() {
   };
 
   const total = properties.length;
-  const disponibles = properties.filter(p => p.status === "Disponible").length;
-  const ocupadas = properties.filter(p => p.status === "Ocupada").length;
+  const disponibles = properties.filter(p => p.status === "DISPONIBLE").length;
+  const ocupadas = properties.filter(p => p.status === "OCUPADA").length;
 
   // Filtro de búsqueda
   const propiedadesFiltradas = properties.filter(p =>
     busqueda
       ? p.title.toLowerCase().includes(busqueda.toLowerCase()) ||
-        p.location.toLowerCase().includes(busqueda.toLowerCase()) ||
+        p.address.toLowerCase().includes(busqueda.toLowerCase()) ||
+        p.city.toLowerCase().includes(busqueda.toLowerCase()) ||
         p.description.toLowerCase().includes(busqueda.toLowerCase())
       : true
   );
@@ -130,10 +131,10 @@ export default function MisPropiedades() {
                   </div>
                   <div className="p-4 flex flex-col flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${prop.status === "Disponible" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>{prop.status}</span>
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${prop.status === "DISPONIBLE" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>{prop.status}</span>
                     </div>
                     <h3 className="font-bold text-lg text-blue-700 mb-1 flex items-center gap-2"><Home className="w-5 h-5" /> {prop.title}</h3>
-                    <div className="text-neutral-500 text-sm mb-2 flex items-center gap-1"><MapPin className="w-4 h-4" /> {prop.location}</div>
+                    <div className="text-neutral-500 text-sm mb-2 flex items-center gap-1"><MapPin className="w-4 h-4" /> {prop.address}, {prop.city}</div>
                     <div className="text-green-700 font-bold text-xl mb-2">${prop.price.toLocaleString("es-CO")}</div>
                     <p className="text-neutral-700 text-sm mb-3 line-clamp-2">{prop.description}</p>
                     <div className="flex gap-2 mt-auto flex-wrap">
@@ -199,9 +200,9 @@ export default function MisPropiedades() {
               );
             })()}
             <h3 className="text-lg font-bold mb-2 text-blue-700 flex items-center gap-2"><Home className="w-5 h-5" /> {modalPropiedad.title}</h3>
-            <div className="text-neutral-500 text-sm mb-2 flex items-center gap-1"><MapPin className="w-4 h-4" /> {modalPropiedad.location}</div>
+            <div className="text-neutral-500 text-sm mb-2 flex items-center gap-1"><MapPin className="w-4 h-4" /> {modalPropiedad.address}, {modalPropiedad.city}</div>
             <div className="text-green-700 font-bold text-xl mb-2">${modalPropiedad.price.toLocaleString("es-CO")}</div>
-            <span className={`px-2 py-1 rounded text-xs font-semibold ${modalPropiedad.status === "Disponible" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>{modalPropiedad.status}</span>
+            <span className={`px-2 py-1 rounded text-xs font-semibold ${modalPropiedad.status === "DISPONIBLE" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>{modalPropiedad.status}</span>
             <p className="text-neutral-700 text-sm mt-4">{modalPropiedad.description}</p>
             <Button className="w-full mt-4" onClick={() => setModalPropiedad(null)}>Cerrar</Button>
           </div>

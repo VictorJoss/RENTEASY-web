@@ -94,76 +94,25 @@ export async function uploadFile(file: File): Promise<string> {
   }
 }
 
-export async function createProperty(data: {
-  title: string;
-  location: string;
-  type: string;
-  price: string;
-  images: File[];
-  description: string;
-}) {
-  try {
-    const imageUrls = await Promise.all(data.images.map(uploadFile));
-    
-    const propertyData = {
-      ...data,
-      images: imageUrls,
-    };
+export const getMyProperties = () => apiClient.get('/api/properties/my-properties');
 
-    const response = await apiClient.post('/api/properties', propertyData);
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Error al crear la propiedad');
-    }
-    throw new Error('Error de red o del servidor al crear la propiedad');
+export const getPropertyById = (id: string) => apiClient.get(`/api/properties/${id}`);
+
+export const createProperty = (data: any) => {
+  const { images, ...rest } = data;
+  return uploadFiles(images).then(imageUrls => {
+    return apiClient.post('/api/properties', { ...rest, images: imageUrls });
+  });
+};
+
+export const updateProperty = (id: string, data: any) => apiClient.put(`/api/properties/${id}`, data);
+
+export const deleteProperty = (id: number) => apiClient.delete(`/api/properties/${id}`);
+
+export const uploadFiles = (files: FileList) => {
+  const uploadPromises: Promise<string>[] = [];
+  for (let i = 0; i < files.length; i++) {
+    uploadPromises.push(uploadFile(files[i]));
   }
-}
-
-export async function getMyProperties() {
-  try {
-    const response = await apiClient.get('/api/properties/my-properties');
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Error al obtener las propiedades');
-    }
-    throw new Error('Error de red o del servidor al obtener las propiedades');
-  }
-}
-
-export async function deleteProperty(id: number) {
-  try {
-    const response = await apiClient.delete(`/api/properties/${id}`);
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Error al eliminar la propiedad');
-    }
-    throw new Error('Error de red o del servidor al eliminar la propiedad');
-  }
-}
-
-export async function getPropertyById(id: number) {
-  try {
-    const response = await apiClient.get(`/api/properties/${id}`);
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Error al obtener la propiedad');
-    }
-    throw new Error('Error de red o del servidor al obtener la propiedad');
-  }
-}
-
-export async function updateProperty(id: number, data: any) {
-    try {
-        const response = await apiClient.put(`/api/properties/${id}`, data);
-        return response.data;
-    } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-            throw new Error(error.response.data.message || 'Error al actualizar la propiedad');
-        }
-        throw new Error('Error de red o del servidor al actualizar la propiedad');
-    }
-}
+  return Promise.all(uploadPromises);
+};

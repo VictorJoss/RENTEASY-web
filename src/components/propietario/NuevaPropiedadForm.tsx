@@ -1,86 +1,86 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, ChangeEvent, FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { Home, MapPin, Image as ImageIcon, DollarSign, FileText, Loader2, X, Plus } from "lucide-react";
-import { createProperty, updateProperty } from "@/lib/api-client";
-
-interface NuevaPropiedadFormProps {
-  modoEdicion?: boolean;
-  datosPropiedad?: FormState & { id?: number };
-}
-
-const mockEditData = {
-  title: "Apartamento en Bogotá",
-  location: "Chapinero",
-  type: "Apartamento",
-  price: "1200000",
-  images: ["foto1.jpg", "foto2.jpg"],
-  description: "Hermoso apartamento en el centro de Bogotá, cerca a todo.",
-};
+import { Image as ImageIcon, Loader2, X, Plus } from "lucide-react";
+import { createProperty } from "@/lib/api-client";
+import { Card } from "@/components/ui/card";
 
 interface FormState {
   title: string;
-  location: string;
-  type: string;
-  price: string;
-  images: File[];
   description: string;
+  address: string;
+  city: string;
+  price: number | string;
+  bedrooms: number | string;
+  bathrooms: number | string;
+  area: number | string;
+  images: File[];
 }
 
-export default function NuevaPropiedadForm({ modoEdicion = false, datosPropiedad }: NuevaPropiedadFormProps) {
-  const [form, setForm] = useState<FormState>(datosPropiedad || {
+interface ValidationErrors {
+  [key: string]: string;
+}
+
+export default function NuevaPropiedadForm() {
+  const [form, setForm] = useState<FormState>({
     title: "",
-    location: "",
-    type: "Apartamento",
-    price: "",
-    images: [],
     description: "",
+    address: "",
+    city: "",
+    price: "",
+    bedrooms: "",
+    bathrooms: "",
+    area: "",
+    images: [],
   });
   const [loading, setLoading] = useState(false);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [error, setError] = useState("");
-  const [displayPrice, setDisplayPrice] = useState("");
+  const [errors, setErrors] = useState<ValidationErrors>({});
   const fileInput = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    if (modoEdicion && datosPropiedad) {
-      const initialFormState = {
-        ...datosPropiedad,
-        images: [],
-      };
-      setForm(initialFormState);
-      setPreviews(datosPropiedad.images as unknown as string[]);
-      if (datosPropiedad.price) {
-        setDisplayPrice(new Intl.NumberFormat('es-CO').format(Number(datosPropiedad.price)));
-      }
-    }
-  }, [modoEdicion, datosPropiedad]);
+  const validate = (): boolean => {
+    const newErrors: ValidationErrors = {};
+    if (!form.title) newErrors.title = "El título es obligatorio.";
+    if (!form.description) newErrors.description = "La descripción es obligatoria.";
+    if (!form.address) newErrors.address = "La dirección es obligatoria.";
+    if (!form.city) newErrors.city = "La ciudad es obligatoria.";
+    if (!form.price || +form.price <= 0) newErrors.price = "El precio debe ser mayor a cero.";
+    if (!form.bedrooms) newErrors.bedrooms = "El número de habitaciones es obligatorio.";
+    if (!form.bathrooms) newErrors.bathrooms = "El número de baños es obligatorio.";
+    if (!form.area) newErrors.area = "El área es obligatoria.";
+    if (form.images.length === 0) newErrors.images = "Debe subir al menos una imagen.";
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-
-    if (name === "price") {
-      const numericValue = value.replace(/\D/g, '');
-      if (numericValue) {
-        setDisplayPrice(new Intl.NumberFormat('es-CO').format(Number(numericValue)));
-      } else {
-        setDisplayPrice('');
-      }
-      setForm({ ...form, [name]: numericValue });
-    } else {
-      setForm({ ...form, [name]: value });
+    setForm({ ...form, [name]: value });
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^0-9]/g, '');
+    setForm({ ...form, price: value ? parseInt(value, 10) : '' });
+    if (errors.price) {
+      setErrors(prev => ({ ...prev, price: '' }));
+    }
+  };
+  
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
       const newImages = [...form.images, ...files];
       setForm({ ...form, images: newImages });
-
+      if (errors.images) {
+        setErrors(prev => ({ ...prev, images: '' }));
+      }
       const newPreviews = files.map(file => URL.createObjectURL(file));
       setPreviews(prev => [...prev, ...newPreviews]);
     }
@@ -94,110 +94,102 @@ export default function NuevaPropiedadForm({ modoEdicion = false, datosPropiedad
     setPreviews(newPreviews);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError("");
-    if (!form.title || !form.location || !form.price || !form.description || form.images.length === 0) {
-      setError("Por favor completa todos los campos y sube al menos una imagen.");
+    if (!validate()) {
       return;
     }
     setLoading(true);
     try {
-      if (modoEdicion && datosPropiedad?.id) {
-        await updateProperty(datosPropiedad.id, form);
-      } else {
-        await createProperty(form);
-      }
-      router.push("/panel-propietario");
+      await createProperty(form);
+      router.push("/panel-propietario?created=true");
     } catch (err: any) {
-      setError(err.message || `Ocurrió un error al ${modoEdicion ? 'actualizar' : 'crear'} la propiedad.`);
+      if (err.response && err.response.data && typeof err.response.data === 'object') {
+        setErrors(err.response.data);
+      } else {
+        setErrors({ form: err.message || "Ocurrió un error al crear la propiedad." });
+      }
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
-    <div className="max-w-5xl mx-auto w-full py-8">
-      <h2 className="text-3xl font-bold mb-8 flex items-center gap-3 text-blue-700"><Plus className="w-8 h-8" /> {modoEdicion ? "Editar propiedad" : "Nueva propiedad"}</h2>
-      <form onSubmit={handleSubmit} className="w-full flex flex-col gap-10">
-        {/* Datos principales */}
-        <section>
-          <h3 className="text-lg font-semibold text-blue-700 mb-4 flex items-center gap-2"><Home className="w-5 h-5" /> Datos de la propiedad</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <label className="text-sm font-semibold text-neutral-600 flex items-center gap-1 mb-2"><Home className="w-5 h-5" /> Título</label>
-              <Input name="title" placeholder="Título" value={form.title} onChange={handleChange} required className="mt-1 text-base py-3" />
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-neutral-600 flex items-center gap-1 mb-2"><MapPin className="w-5 h-5" /> Ubicación</label>
-              <Input name="location" placeholder="Ubicación" value={form.location} onChange={handleChange} required className="mt-1 text-base py-3" />
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-neutral-600 flex items-center gap-1 mb-2"><FileText className="w-5 h-5" /> Tipo</label>
-              <select name="type" value={form.type} onChange={handleChange} className="w-full border rounded px-3 py-3 mt-1 text-base">
-                <option>Apartamento</option>
-                <option>Casa</option>
-                <option>Oficina</option>
-                <option>Local</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-neutral-600 flex items-center gap-1 mb-2"><DollarSign className="w-5 h-5" /> Precio (COP)</label>
-              <Input name="price" type="text" placeholder="Ej: 1.200.000" value={displayPrice} onChange={handleChange} required className="mt-1 text-base py-3" />
-            </div>
+    <Card className="max-w-2xl mx-auto p-6">
+      <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><Plus className="w-6 h-6" /> Nueva Propiedad</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Título</label>
+          <Input name="title" placeholder="Ej: Apartamento moderno en Chapinero" value={form.title} onChange={handleChange} required />
+          {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Descripción</label>
+          <textarea name="description" placeholder="Describe las características principales de tu propiedad" value={form.description} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white" rows={4} required maxLength={1000} />
+          <div className="text-right text-xs text-gray-500">{form.description.length}/1000</div>
+          {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Dirección</label>
+          <Input name="address" placeholder="Ej: Cra 7 # 63-10" value={form.address} onChange={handleChange} required />
+          {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Ciudad</label>
+          <Input name="city" placeholder="Ej: Bogotá" value={form.city} onChange={handleChange} required />
+          {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Precio (COP)</label>
+          <Input name="price" type="text" placeholder="Ej: 1500000" value={form.price ? Number(form.price).toLocaleString('es-CO') : ''} onChange={handlePriceChange} required />
+          {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Habitaciones</label>
+            <Input name="bedrooms" type="number" placeholder="Ej: 3" value={form.bedrooms} onChange={handleChange} required />
+            {errors.bedrooms && <p className="text-red-500 text-xs mt-1">{errors.bedrooms}</p>}
           </div>
-        </section>
-        <hr className="my-2 border-neutral-200" />
+          <div>
+            <label className="block text-sm font-medium mb-1">Baños</label>
+            <Input name="bathrooms" type="number" placeholder="Ej: 2" value={form.bathrooms} onChange={handleChange} required />
+            {errors.bathrooms && <p className="text-red-500 text-xs mt-1">{errors.bathrooms}</p>}
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Área (m²)</label>
+            <Input name="area" type="number" placeholder="Ej: 80" value={form.area} onChange={handleChange} required />
+            {errors.area && <p className="text-red-500 text-xs mt-1">{errors.area}</p>}
+          </div>
+        </div>
+        
         {/* Imágenes */}
-        <section>
-          <h3 className="text-lg font-semibold text-blue-700 mb-4 flex items-center gap-2"><ImageIcon className="w-5 h-5" /> Imágenes</h3>
-          <div className="flex flex-wrap gap-4 mt-2">
+        <div>
+          <label className="block text-sm font-medium mb-2">Imágenes</label>
+          <div className="flex flex-wrap gap-4">
             {previews.map((img, idx) => (
               <div key={idx} className="relative group">
-                <img src={img} alt={`Imagen ${idx + 1}`} className="w-28 h-28 object-cover rounded-lg border shadow" />
-                <button type="button" className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 shadow hover:bg-red-700 transition-colors" onClick={() => handleRemoveImage(idx)} aria-label="Eliminar imagen"><X className="w-5 h-5" /></button>
+                <img src={img} alt={`Preview ${idx + 1}`} className="w-24 h-24 object-cover rounded-lg border shadow-sm" />
+                <button type="button" className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600" onClick={() => handleRemoveImage(idx)}><X className="w-4 h-4" /></button>
               </div>
             ))}
-            <button
-              type="button"
-              className="w-28 h-28 flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-lg text-blue-400 hover:bg-blue-50 transition-colors"
-              onClick={() => fileInput.current?.click()}
-              aria-label="Agregar imagen"
-            >
+            <button type="button" className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed rounded-lg text-gray-400 hover:bg-gray-50 hover:border-blue-500" onClick={() => fileInput.current?.click()}>
               <ImageIcon className="w-8 h-8 mb-1" />
               <span className="text-xs">Agregar</span>
             </button>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              ref={fileInput}
-              className="hidden"
-              onChange={handleImageChange}
-            />
+            <input type="file" accept="image/*" multiple ref={fileInput} className="hidden" onChange={handleImageChange} />
           </div>
-          <span className="text-xs text-neutral-400 block mt-1">Puedes subir varias imágenes. Arrastra para cambiar el orden (próximamente).</span>
-        </section>
-        <hr className="my-2 border-neutral-200" />
-        {/* Descripción */}
-        <section>
-          <h3 className="text-lg font-semibold text-blue-700 mb-4 flex items-center gap-2"><FileText className="w-5 h-5" /> Descripción</h3>
-          <textarea
-            name="description"
-            placeholder="Descripción"
-            value={form.description}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-3 min-h-[100px] mt-1 text-base"
-            required
-          />
-        </section>
-        {error && <div className="flex items-center gap-2 text-red-700 bg-red-50 border border-red-200 rounded p-2 text-sm"><X className="w-4 h-4" /> {error}</div>}
-        <div className="flex justify-end">
-          <Button type="submit" disabled={loading} className="bg-gradient-to-r from-blue-600 to-green-600 text-white font-semibold shadow flex items-center gap-2 px-8 py-3 text-base">
-            {loading && <Loader2 className="w-5 h-5 animate-spin" />} {modoEdicion ? (loading ? "Guardando..." : "Guardar cambios") : (loading ? "Publicando..." : "Publicar propiedad")}
-          </Button>
+          {errors.images && <p className="text-red-500 text-xs mt-1">{errors.images}</p>}
+        </div>
+
+        {errors.form && <div className="text-red-500 text-sm mt-2">{errors.form}</div>}
+        
+        <div className="flex justify-end gap-2 pt-4">
+            <Button type="button" variant="outline" onClick={() => router.back()}>Cancelar</Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Publicando...</> : "Publicar Propiedad"}
+            </Button>
         </div>
       </form>
-    </div>
+    </Card>
   );
 }
