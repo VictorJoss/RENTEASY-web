@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { getFeaturedProperties } from "@/lib/api-client";
+import Image from "next/image";
 
 interface Property {
   id: number;
@@ -60,18 +61,21 @@ export default function PropiedadesDestacadas() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
                 viewport={{ once: true }}
-                className="rounded-xl overflow-hidden shadow-lg bg-white/70 border border-white/20 hover:shadow-xl transition-all"
+                className="rounded-xl overflow-hidden shadow-lg bg-white/70 border border-white/20 hover:shadow-xl transition-all flex flex-col"
               >
-                <img
-                  src={prop.images[0] || 'https://via.placeholder.com/400x300?text=Sin+Imagen'}
-                  alt={prop.title}
-                  className="w-full h-48 object-cover"
-                  loading="lazy"
-                />
-                <div className="p-4">
+                <div className="relative w-full h-48">
+                  <Image
+                    src={prop.images[0] || 'https://via.placeholder.com/400x300?text=Sin+Imagen'}
+                    alt={prop.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                  />
+                </div>
+                <div className="p-4 flex-grow flex flex-col">
                   <h3 className="font-semibold text-lg text-neutral-800 mb-1 truncate">{prop.title}</h3>
                   <p className="text-sm text-neutral-500">{prop.city}</p>
-                  <p className="text-lg font-bold text-green-600 mt-2">
+                  <p className="text-lg font-bold text-green-600 mt-auto pt-2">
                     ${new Intl.NumberFormat('es-CO').format(prop.price)}
                   </p>
                 </div>
