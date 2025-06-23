@@ -107,7 +107,7 @@ export const createProperty = (data: any) => {
 
 export const updateProperty = (id: string, data: any) => apiClient.put(`/api/properties/${id}`, data);
 
-export const deleteProperty = (id: number) => apiClient.delete(`/api/properties/${id}`);
+export const deleteProperty = (id: string) => apiClient.delete(`/api/properties/${id}`);
 
 export const uploadFiles = (files: FileList) => {
   const uploadPromises: Promise<string>[] = [];
@@ -116,3 +116,5 @@ export const uploadFiles = (files: FileList) => {
   }
   return Promise.all(uploadPromises);
 };
+
+export const getFeaturedProperties = () => apiClient.get('/api/properties/random');
