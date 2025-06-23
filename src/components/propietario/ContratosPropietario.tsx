@@ -1,27 +1,52 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { getOwnerContracts } from "@/lib/api-client";
 import { FileText, User, Home, CheckCircle, AlertTriangle, Calendar, X, PenLine, Eye, ChevronLeft, ChevronRight, FileSignature, Search } from "lucide-react";
+import { format } from 'date-fns';
 
-const mockContratos = [
-  { id: 1, inquilino: "Juan Pérez", propiedad: "Apartamento en Bogotá", estado: "Pendiente", fecha: "2024-05-01" },
-  { id: 2, inquilino: "Ana Gómez", propiedad: "Casa en Medellín", estado: "Firmado", fecha: "2024-04-15" },
-];
+interface Contract {
+  id: number;
+  tenantName: string;
+  propertyName: string;
+  status: string;
+  startDate: string;
+  endDate: string;
+  rentAmount: number;
+}
 
 export default function ContratosPropietario() {
-  const [contratos, setContratos] = useState(mockContratos);
-  const [modalContrato, setModalContrato] = useState<any>(null);
+  const [contratos, setContratos] = useState<Contract[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [modalContrato, setModalContrato] = useState<Contract | null>(null);
   const router = useRouter();
 
+  useEffect(() => {
+    const fetchContracts = async () => {
+      try {
+        setLoading(true);
+        const data = await getOwnerContracts();
+        setContratos(data);
+        setError(null);
+      } catch (err) {
+        setError("Error al cargar los contratos. Por favor, inténtelo de nuevo más tarde.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchContracts();
+  }, []);
+
   const handleFirmar = (id: number) => {
-    setContratos((prev) => prev.map(c => c.id === id ? { ...c, estado: "Firmado" } : c));
-    alert("Contrato firmado exitosamente (mock)");
+    // Lógica para firmar contrato (a implementar)
+    alert("Funcionalidad de firma pendiente de implementación.");
   };
 
-  const estados = ["Pendiente", "Firmado"];
-  const propiedades = Array.from(new Set(contratos.map(c => c.propiedad)));
-  const inquilinos = Array.from(new Set(contratos.map(c => c.inquilino)));
+  const estados = Array.from(new Set(contratos.map(c => c.status)));
+  const propiedades = Array.from(new Set(contratos.map(c => c.propertyName)));
   const PAGE_SIZE = 4;
   const [pagina, setPagina] = useState(1);
   const [filtroEstado, setFiltroEstado] = useState("");
@@ -29,19 +54,43 @@ export default function ContratosPropietario() {
   const [busqueda, setBusqueda] = useState("");
 
   const contratosFiltrados = contratos.filter(c =>
-    (filtroEstado ? c.estado === filtroEstado : true) &&
-    (filtroPropiedad ? c.propiedad === filtroPropiedad : true) &&
+    (filtroEstado ? c.status === filtroEstado : true) &&
+    (filtroPropiedad ? c.propertyName === filtroPropiedad : true) &&
     (busqueda ? (
-      c.propiedad.toLowerCase().includes(busqueda.toLowerCase()) ||
-      c.inquilino.toLowerCase().includes(busqueda.toLowerCase())
+      c.propertyName.toLowerCase().includes(busqueda.toLowerCase()) ||
+      c.tenantName.toLowerCase().includes(busqueda.toLowerCase())
     ) : true)
   );
   const totalPaginas = Math.ceil(contratosFiltrados.length / PAGE_SIZE) || 1;
   const contratosPagina = contratosFiltrados.slice((pagina - 1) * PAGE_SIZE, pagina * PAGE_SIZE);
   const resumen = estados.map(e => ({
     estado: e,
-    cantidad: contratos.filter(c => c.estado === e).length
+    cantidad: contratos.filter(c => c.status === e).length
   }));
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4 mx-auto"></div>
+          <h2 className="text-xl font-semibold">Cargando Contratos...</h2>
+          <p className="text-gray-500">Estamos preparando todo para usted.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center text-red-500">
+          <AlertTriangle className="w-12 h-12 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold">Error</h2>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -55,11 +104,14 @@ export default function ContratosPropietario() {
           <div className="flex flex-col min-w-[140px]">
             <label className="block text-xs mb-1 font-semibold text-neutral-600 flex items-center gap-1"><User className="w-4 h-4 text-blue-400" /> Inquilino</label>
             <div className="relative">
-              <select value={filtroEstado} onChange={e => { setFiltroEstado(e.target.value); setPagina(1); }} className="appearance-none w-full border border-blue-200 rounded-lg px-3 py-2 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 transition text-sm shadow-sm">
-                <option value="">Todos</option>
-                {estados.map(e => <option key={e}>{e}</option>)}
-              </select>
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-blue-300"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+              <input 
+                type="text" 
+                value={busqueda} 
+                onChange={e => { setBusqueda(e.target.value); setPagina(1); }} 
+                className="w-full border border-blue-200 rounded-lg px-3 py-2 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 transition text-sm shadow-sm" 
+                placeholder="Buscar por inquilino..." 
+              />
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-blue-300"><Search className="w-4 h-4" /></span>
             </div>
           </div>
           <div className="flex flex-col min-w-[160px]">
@@ -73,10 +125,13 @@ export default function ContratosPropietario() {
             </div>
           </div>
           <div className="flex flex-col min-w-[180px]">
-            <label className="block text-xs mb-1 font-semibold text-neutral-600 flex items-center gap-1"><Search className="w-4 h-4 text-blue-400" /> Buscar</label>
+             <label className="block text-xs mb-1 font-semibold text-neutral-600 flex items-center gap-1"><CheckCircle className="w-4 h-4 text-purple-400" /> Estado</label>
             <div className="relative">
-              <input type="text" value={busqueda} onChange={e => { setBusqueda(e.target.value); setPagina(1); }} className="w-full border border-blue-200 rounded-lg px-3 py-2 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 transition text-sm shadow-sm" placeholder="Buscar por texto..." />
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-blue-300"><Search className="w-4 h-4" /></span>
+              <select value={filtroEstado} onChange={e => { setFiltroEstado(e.target.value); setPagina(1); }} className="appearance-none w-full border border-purple-200 rounded-lg px-3 py-2 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-purple-200 transition text-sm shadow-sm">
+                <option value="">Todos</option>
+                {estados.map(e => <option key={e}>{e}</option>)}
+              </select>
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-purple-300"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
             </div>
           </div>
         </div>
@@ -86,12 +141,12 @@ export default function ContratosPropietario() {
         <h3 className="font-semibold mb-2">Resumen de contratos</h3>
         <div className="flex gap-6">
           {resumen.map(r => (
-            <div key={r.estado} className={`rounded-xl p-4 text-center min-w-[120px] shadow border ${r.estado === "Pendiente" ? "bg-yellow-50 border-yellow-200" : "bg-green-50 border-green-200"}`}>
-              <div className={`text-lg font-bold flex items-center justify-center gap-1 ${r.estado === "Pendiente" ? "text-yellow-600" : "text-green-700"}`}>
-                {r.estado === "Pendiente" ? <AlertTriangle className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />} {r.cantidad}
+            <div key={r.estado} className={`rounded-xl p-4 text-center min-w-[120px] shadow border ${r.estado === "PENDIENTE" ? "bg-yellow-50 border-yellow-200" : r.estado === "ACTIVO" ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200" }`}>
+              <div className={`text-lg font-bold flex items-center justify-center gap-1 ${r.estado === "PENDIENTE" ? "text-yellow-600" : r.estado === "ACTIVO" ? "text-green-700" : "text-red-700"}`}>
+                {r.estado === "PENDIENTE" ? <AlertTriangle className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />} {r.cantidad}
               </div>
               <div className="text-xs text-neutral-600 mt-1">
-                <span className={`inline-block px-2 py-1 rounded font-semibold ${r.estado === "Pendiente" ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"}`}>{r.estado}</span>
+                <span className={`inline-block px-2 py-1 rounded font-semibold ${r.estado === "PENDIENTE" ? "bg-yellow-100 text-yellow-700" : r.estado === "ACTIVO" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700" }`}>{r.estado}</span>
               </div>
             </div>
           ))}
@@ -105,24 +160,24 @@ export default function ContratosPropietario() {
               <th className="px-4 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap">Inquilino</th>
               <th className="px-4 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap">Propiedad</th>
               <th className="px-4 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap">Estado</th>
-              <th className="px-4 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap">Fecha</th>
+              <th className="px-4 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap">Fecha Inicio</th>
               <th className="px-4 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {contratosPagina.map((contrato) => (
               <tr key={contrato.id} className="even:bg-blue-50/40">
-                <td className="px-4 py-3 border-b align-middle"><span className="flex items-center gap-2"><User className="w-4 h-4 text-blue-400 shrink-0" /> {contrato.inquilino}</span></td>
-                <td className="px-4 py-3 border-b align-middle"><span className="flex items-center gap-2"><Home className="w-4 h-4 text-green-400 shrink-0" /> {contrato.propiedad}</span></td>
+                <td className="px-4 py-3 border-b align-middle"><span className="flex items-center gap-2"><User className="w-4 h-4 text-blue-400 shrink-0" /> {contrato.tenantName}</span></td>
+                <td className="px-4 py-3 border-b align-middle"><span className="flex items-center gap-2"><Home className="w-4 h-4 text-green-400 shrink-0" /> {contrato.propertyName}</span></td>
                 <td className="px-4 py-3 border-b align-middle">
-                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${contrato.estado === "Pendiente" ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"}`}>
-                    {contrato.estado === "Pendiente" ? <AlertTriangle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />} {contrato.estado}
+                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${contrato.status === "PENDIENTE" ? "bg-yellow-100 text-yellow-700" : contrato.status === "ACTIVO" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                    {contrato.status === "PENDIENTE" ? <AlertTriangle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />} {contrato.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 border-b align-middle"><span className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400 shrink-0" /> {contrato.fecha}</span></td>
+                <td className="px-4 py-3 border-b align-middle"><span className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400 shrink-0" /> {format(new Date(contrato.startDate), 'dd/MM/yyyy')}</span></td>
                 <td className="px-4 py-3 border-b align-middle flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => setModalContrato(contrato)}><Eye className="w-4 h-4 mr-1" />Ver</Button>
-                  {contrato.estado === "Pendiente" && (
+                  {contrato.status === "PENDIENTE_FIRMA_PROPIETARIO" && (
                     <Button size="sm" className="bg-gradient-to-r from-blue-600 to-green-600 text-white font-semibold shadow flex items-center gap-1" onClick={() => handleFirmar(contrato.id)}><FileSignature className="w-4 h-4" />Firmar</Button>
                   )}
                 </td>
@@ -142,12 +197,14 @@ export default function ContratosPropietario() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-2xl w-full border border-blue-100 relative animate-in fade-in duration-200">
             <button className="absolute top-3 right-3 text-neutral-400 hover:text-blue-600 text-xl" onClick={() => setModalContrato(null)} aria-label="Cerrar"><X /></button>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-700"><FileText className="w-5 h-5" /> Contrato de {modalContrato.propiedad}</h3>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-700"><FileText className="w-5 h-5" /> Contrato de {modalContrato.propertyName}</h3>
             <div className="space-y-2 mb-4">
-              <div className="flex items-center gap-2"><User className="w-4 h-4 text-blue-400" /><b>Inquilino:</b> <span className="text-neutral-700">{modalContrato.inquilino}</span></div>
-              <div className="flex items-center gap-2"><Home className="w-4 h-4 text-green-400" /><b>Propiedad:</b> <span className="text-neutral-700">{modalContrato.propiedad}</span></div>
-              <div className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-600" /><b>Estado:</b> <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${modalContrato.estado === "Pendiente" ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"}`}>{modalContrato.estado === "Pendiente" ? <AlertTriangle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />} {modalContrato.estado}</span></div>
-              <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" /><b>Fecha:</b> <span className="text-neutral-700">{modalContrato.fecha}</span></div>
+              <div className="flex items-center gap-2"><User className="w-4 h-4 text-blue-400" /><b>Inquilino:</b> <span className="text-neutral-700">{modalContrato.tenantName}</span></div>
+              <div className="flex items-center gap-2"><Home className="w-4 h-4 text-green-400" /><b>Propiedad:</b> <span className="text-neutral-700">{modalContrato.propertyName}</span></div>
+              <div className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-600" /><b>Estado:</b> <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${modalContrato.status === "PENDIENTE" ? "bg-yellow-100 text-yellow-700" : modalContrato.status === "ACTIVO" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>{modalContrato.status}</span></div>
+              <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" /><b>Fecha Inicio:</b> <span className="text-neutral-700">{format(new Date(modalContrato.startDate), 'dd/MM/yyyy')}</span></div>
+              <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-red-400" /><b>Fecha Fin:</b> <span className="text-neutral-700">{format(new Date(modalContrato.endDate), 'dd/MM/yyyy')}</span></div>
+              <div className="flex items-center gap-2"><span className="font-bold text-lg text-green-600">${new Intl.NumberFormat('es-CO').format(modalContrato.rentAmount)}</span></div>
             </div>
             {/* Visor PDF simulado */}
             <div className="mb-4">
@@ -155,7 +212,7 @@ export default function ContratosPropietario() {
                 <iframe src="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" title="Contrato PDF" className="w-full h-72" />
               </div>
             </div>
-            {modalContrato.estado === "Pendiente" && (
+            {modalContrato.status === "PENDIENTE_FIRMA_PROPIETARIO" && (
               <div className="flex flex-col gap-2 mb-2">
                 <Button size="lg" className="bg-gradient-to-r from-blue-600 to-green-600 text-white font-semibold shadow flex items-center gap-2 self-end"><FileSignature className="w-5 h-5" />Firmar digitalmente</Button>
                 <span className="text-xs text-neutral-400">Al firmar digitalmente, el contrato quedará registrado como firmado y se notificará al inquilino.</span>

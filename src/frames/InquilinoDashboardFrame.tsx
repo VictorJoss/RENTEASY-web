@@ -1,33 +1,16 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { User, LogOut, Home, Search, FileText, CreditCard } from "lucide-react";
+import { User, LogOut, Home, Search, FileText, CreditCard, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/home/Footer";
 import { logout } from "@/lib/api-client";
-import {
-    Bell,
-    LineChart,
-    Package,
-    Package2,
-    ShoppingCart,
-    Users
-} from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-
-const navItems = [
-  { href: "/panel-inquilino", label: "Resumen" },
-  { href: "/panel-inquilino/buscar", label: "Buscar propiedades" },
-  { href: "/panel-inquilino/contratos", label: "Contratos" },
-  { href: "/panel-inquilino/pagos", label: "Pagos" },
-  { href: "/panel-inquilino/incidencias", label: "Mis incidencias" },
-];
 
 export default function InquilinoDashboardFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50">
       {/* Header de navegación */}
-      <header className="w-full bg-white/90 border-b border-neutral-100 shadow-sm">
+      <header className="w-full bg-white/90 border-b border-neutral-100 shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 flex items-center h-16 justify-between">
           {/* Logo y nombre */}
           <Link href="/" className="flex items-center gap-2">
@@ -35,38 +18,45 @@ export default function InquilinoDashboardFrame({ children }: { children: React.
             <span className="hidden md:inline text-neutral-400 font-semibold text-sm ml-2">Inquilino</span>
           </Link>
           {/* Navegación */}
-          <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
+          <nav className="hidden md:flex items-center gap-1">
             <Link
               href="/panel-inquilino/resumen"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-neutral-100"
             >
               <Home className="h-4 w-4" />
               Resumen
             </Link>
             <Link
               href="/panel-inquilino/buscar"
-              className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-primary transition-all hover:text-primary hover:bg-neutral-100"
             >
               <Search className="h-4 w-4" />
               Buscar Propiedades
             </Link>
             <Link
+              href="/panel-inquilino/solicitudes"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-neutral-100"
+            >
+              <FileText className="h-4 w-4" />
+              Mis Solicitudes
+            </Link>
+            <Link
               href="/panel-inquilino/contratos"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-neutral-100"
             >
               <FileText className="h-4 w-4" />
               Mis Contratos
             </Link>
             <Link
               href="/panel-inquilino/pagos"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-neutral-100"
             >
               <CreditCard className="h-4 w-4" />
               Historial de Pagos
             </Link>
             <Link
               href="/panel-inquilino/incidencias"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-neutral-100"
             >
               <Bell className="h-4 w-4" />
               Mis incidencias

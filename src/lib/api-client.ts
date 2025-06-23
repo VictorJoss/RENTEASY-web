@@ -121,13 +121,23 @@ export const getOwnerApplications = async () => {
   return response.data;
 };
 
+export const getTenantApplications = async () => {
+  const response = await apiClient.get('/api/rental-applications/tenant');
+  return response.data;
+};
+
 export const updateApplicationStatus = async (id: number, status: string) => {
   const response = await apiClient.put(`/api/rental-applications/${id}/status`, { status });
   return response.data;
 };
 
 export const getTenantContracts = async () => {
-  const response = await apiClient.get('/api/contracts/my-contracts');
+  const response = await apiClient.get('/api/contracts/tenant');
+  return response.data;
+};
+
+export const getOwnerContracts = async () => {
+  const response = await apiClient.get('/api/contracts/owner');
   return response.data;
 };
 
