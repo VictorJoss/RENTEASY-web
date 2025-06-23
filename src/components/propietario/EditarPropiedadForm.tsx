@@ -118,7 +118,9 @@ export default function EditPropertyForm({ propertyId }: EditPropertyFormProps) 
             required
           >
             <option value="DISPONIBLE">Disponible</option>
-            <option value="OCUPADA">Ocupada</option>
+            <option value="RESERVADO">Reservado</option>
+            <option value="OCUPADO">Ocupado</option>
+            <option value="INACTIVO">Inactivo</option>
           </select>
         </div>
         

@@ -45,7 +45,7 @@ export default function MisPropiedades() {
 
   const total = properties.length;
   const disponibles = properties.filter(p => p.status === "DISPONIBLE").length;
-  const ocupadas = properties.filter(p => p.status === "OCUPADA").length;
+  const ocupadas = properties.filter(p => p.status === "OCUPADO").length;
 
   // Filtro de búsqueda
   const propiedadesFiltradas = properties.filter(p =>
