@@ -12,7 +12,6 @@ const navItems = [
   { href: "/panel-propietario/contratos", label: "Contratos" },
   { href: "/panel-propietario/pagos", label: "Pagos" },
   { href: "/panel-propietario/estadisticas", label: "Estadísticas" },
-  { href: "/panel-propietario/incidencias", label: "Incidencias" },
 ];
 
 export default function PropietarioDashboardFrame({ children }: { children: React.ReactNode }) {

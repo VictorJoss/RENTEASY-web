@@ -264,3 +264,9 @@ export const getOwnerPaymentHistory = async () => {
   const response = await apiClient.get('/api/contracts/owner/payment-history');
   return response.data;
 };
+
+// Función para obtener estadísticas del propietario
+export const getOwnerStatistics = async () => {
+  const response = await apiClient.get('/api/contracts/owner/statistics');
+  return response.data;
+};
