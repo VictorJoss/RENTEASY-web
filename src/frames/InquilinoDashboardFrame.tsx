@@ -54,13 +54,7 @@ export default function InquilinoDashboardFrame({ children }: { children: React.
               <CreditCard className="h-4 w-4" />
               Historial de Pagos
             </Link>
-            <Link
-              href="/panel-inquilino/incidencias"
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-neutral-100"
-            >
-              <Bell className="h-4 w-4" />
-              Mis incidencias
-            </Link>
+
           </nav>
           {/* Acciones usuario */}
           <div className="flex items-center gap-3">

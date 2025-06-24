@@ -128,6 +128,24 @@ export const getFeaturedProperties = () => apiClient.get('/api/properties/random
 
 export const getPublicPropertyById = (id: string) => apiClient.get(`/api/properties/public/${id}`);
 
+export const searchProperties = (filters: {
+  city?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  bedrooms?: number;
+  search?: string;
+}) => {
+  const params = new URLSearchParams();
+  
+  if (filters.city) params.append('city', filters.city);
+  if (filters.minPrice) params.append('minPrice', filters.minPrice.toString());
+  if (filters.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
+  if (filters.bedrooms) params.append('bedrooms', filters.bedrooms.toString());
+  if (filters.search) params.append('search', filters.search);
+  
+  return apiClient.get(`/api/properties/search?${params.toString()}`);
+};
+
 export const createRentalApplication = (propertyId: number) => {
     return apiClient.post('/api/rental-applications', { propertyId });
 };
@@ -190,5 +208,11 @@ export const forceActivateContract = async (contractId: number) => {
 // Función para obtener resumen del inquilino
 export const getTenantSummary = async () => {
   const response = await apiClient.get('/api/contracts/tenant/summary');
+  return response.data;
+};
+
+// Función para obtener historial de pagos del inquilino
+export const getPaymentHistory = async () => {
+  const response = await apiClient.get('/api/contracts/tenant/payment-history');
   return response.data;
 };

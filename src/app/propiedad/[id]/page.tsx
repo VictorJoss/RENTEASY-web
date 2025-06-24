@@ -93,7 +93,7 @@ export default function PropertyPage() {
       case 'loading':
         return <Button size="lg" className="w-full text-lg" disabled><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Procesando...</Button>;
       case 'success':
-        return <Button size="lg" className="w-full text-lg" disabled className="bg-green-500"><CheckCircle2 className="mr-2 h-5 w-5" /> ¡Solicitud Enviada!</Button>;
+        return <Button size="lg" className="w-full text-lg bg-green-500" disabled><CheckCircle2 className="mr-2 h-5 w-5" /> ¡Solicitud Enviada!</Button>;
       case 'error':
         return <Button size="lg" className="w-full text-lg" variant="destructive" onClick={handleRequestRental}><AlertCircle className="mr-2 h-5 w-5" /> Reintentar Solicitud</Button>;
       default:
