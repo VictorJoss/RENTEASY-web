@@ -10,6 +10,21 @@ const apiClient = axios.create({
   },
 });
 
+apiClient.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const user = localStorage.getItem('user');
+    if (user) {
+      const userData = JSON.parse(user);
+      if (userData.token) {
+        config.headers.Authorization = `Bearer ${userData.token}`;
+      }
+    }
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
 export async function register(data: { name: string; email: string; password: string; document: string; role: string }) {
   try {
     const response = await apiClient.post('/api/auth/signup', data);
@@ -31,7 +46,8 @@ export async function login(data: { email: string; password: string }): Promise<
       id: userData.id,
       name: userData.name,
       email: userData.email,
-      roles: userData.roles
+      roles: userData.roles,
+      token: userData.token,
     }));
 
     const mainRole = userData.roles[0].replace('ROLE_', '').toLowerCase();
@@ -131,6 +147,16 @@ export const updateApplicationStatus = async (id: number, status: string) => {
   return response.data;
 };
 
+export const updateContractTerms = async (id: number, data: { termsAndConditions: string }) => {
+  const response = await apiClient.put(`/api/contracts/${id}/terms`, data);
+  return response.data;
+};
+
+export const getContractById = async (id: number) => {
+  const response = await apiClient.get(`/api/contracts/${id}`);
+  return response.data;
+};
+
 export const getTenantContracts = async () => {
   const response = await apiClient.get('/api/contracts/tenant');
   return response.data;
@@ -142,10 +168,27 @@ export const getOwnerContracts = async () => {
 };
 
 export const getContractPaymentUrl = async (contractId: number) => {
-  const response = await apiClient.get(`/contracts/${contractId}/payment-url`);
+  const response = await apiClient.get(`/api/contracts/${contractId}/payment-url`);
   return response.data;
 };
 
 export const createContract = async (contractData: any) => {
   // ... existing code ...
+};
+
+// Funciones para debugging y testing
+export const debugContracts = async () => {
+  const response = await apiClient.get('/api/contracts/debug');
+  return response.data;
+};
+
+export const forceActivateContract = async (contractId: number) => {
+  const response = await apiClient.post(`/api/contracts/${contractId}/force-activate`);
+  return response.data;
+};
+
+// Función para obtener resumen del inquilino
+export const getTenantSummary = async () => {
+  const response = await apiClient.get('/api/contracts/tenant/summary');
+  return response.data;
 };

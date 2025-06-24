@@ -3,30 +3,32 @@ import { useEffect, useState } from "react";
 import { getTenantContracts, getContractPaymentUrl } from "@/lib/api-client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { FileText, Home, DollarSign, Calendar, CheckCircle, AlertTriangle, CreditCard, ExternalLink, Loader } from "lucide-react";
+import Link from 'next/link';
 
 interface Contract {
   id: number;
-  propertyName: string;
-  rentAmount: number;
+  propertyTitle: string;
+  monthlyAmount: number;
   status: string;
   startDate: string;
   endDate: string;
 }
 
 const ContractStatusBadge = ({ status }: { status: string }) => {
-  const statusMap: { [key: string]: { variant: "destructive" | "success" | "secondary" | "outline", icon: JSX.Element } } = {
-    PENDIENTE_PAGO: { variant: "destructive", icon: <AlertTriangle className="w-3 h-3" /> },
-    PENDIENTE_FIRMA: { variant: "outline", icon: <AlertTriangle className="w-3 h-3" /> },
-    ACTIVO: { variant: "success", icon: <CheckCircle className="w-3 h-3" /> },
-    FINALIZADO: { variant: "secondary", icon: <CheckCircle className="w-3 h-3" /> },
-    CANCELADO: { variant: "secondary", icon: <CheckCircle className="w-3 h-3" /> },
+  const statusMap: { [key: string]: { variant: "destructive" | "success" | "secondary" | "outline", icon: JSX.Element, className: string } } = {
+    PENDIENTE_PAGO: { variant: "destructive", icon: <AlertTriangle className="w-4 h-4" />, className: "bg-red-100 text-red-800 border-red-200"},
+    PENDIENTE_FIRMA: { variant: "outline", icon: <AlertTriangle className="w-4 h-4" />, className: "bg-yellow-100 text-yellow-800 border-yellow-200" },
+    ACTIVO: { variant: "success", icon: <CheckCircle className="w-4 h-4" />, className: "bg-green-100 text-green-800 border-green-200" },
+    FINALIZADO: { variant: "secondary", icon: <CheckCircle className="w-4 h-4" />, className: "bg-gray-100 text-gray-800 border-gray-200" },
+    CANCELADO: { variant: "secondary", icon: <CheckCircle className="w-4 h-4" />, className: "bg-gray-100 text-gray-800 border-gray-200" },
   };
 
-  const currentStatus = statusMap[status] || { variant: "secondary", icon: <CheckCircle className="w-3 h-3" /> };
+  const currentStatus = statusMap[status] || { variant: "secondary", icon: <CheckCircle className="w-4 h-4" />, className: "bg-gray-100 text-gray-800" };
 
-  return <Badge variant={currentStatus.variant} className="flex items-center gap-1.5 capitalize">{currentStatus.icon} {status.replace(/_/g, ' ').toLowerCase()}</Badge>;
+  return <Badge variant={currentStatus.variant} className={`flex items-center gap-1.5 capitalize font-semibold text-sm px-3 py-1 ${currentStatus.className}`}>{currentStatus.icon} {status.replace(/_/g, ' ').toLowerCase()}</Badge>;
 };
 
 export default function ContratosInquilino() {
@@ -57,8 +59,8 @@ export default function ContratosInquilino() {
     setPayingContractId(contractId);
     try {
       const data = await getContractPaymentUrl(contractId);
-      if (data && data.paymentUrl) {
-        window.open(data.paymentUrl, "_blank");
+      if (data && data.url) {
+        window.open(data.url, "_blank");
       } else {
         setError("No se pudo obtener la URL de pago. Por favor, contacta a soporte.");
       }
@@ -92,58 +94,63 @@ export default function ContratosInquilino() {
   
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold flex items-center gap-2"><FileText className="w-7 h-7 text-blue-600" /> Mis Contratos</h2>
-      <div className="overflow-x-auto rounded-xl shadow border border-neutral-100 bg-white">
-        <table className="min-w-full text-sm align-middle">
-          <thead className="bg-neutral-50">
-            <tr>
-              <th className="px-5 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap flex items-center gap-2"><Home className="w-4 h-4"/>Propiedad</th>
-              <th className="px-5 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap flex items-center gap-2"><DollarSign className="w-4 h-4"/>Monto Mensual</th>
-              <th className="px-5 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap flex items-center gap-2"><CheckCircle className="w-4 h-4"/>Estado</th>
-              <th className="px-5 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap flex items-center gap-2"><Calendar className="w-4 h-4"/>Fecha de Inicio</th>
-              <th className="px-5 py-3 border-b text-left text-xs text-neutral-500 font-semibold whitespace-nowrap">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-100">
-            {contracts.length > 0 ? (
-              contracts.map((contract) => (
-                <tr key={contract.id} className="hover:bg-blue-50/40 transition-colors">
-                  <td className="px-5 py-4 whitespace-nowrap text-neutral-800 font-medium">{contract.propertyName}</td>
-                  <td className="px-5 py-4 whitespace-nowrap text-green-600 font-semibold">${new Intl.NumberFormat('es-CO').format(contract.rentAmount)}</td>
-                  <td className="px-5 py-4 whitespace-nowrap">
-                    <ContractStatusBadge status={contract.status} />
-                  </td>
-                  <td className="px-5 py-4 whitespace-nowrap text-neutral-600">{format(new Date(contract.startDate), "dd/MM/yyyy")}</td>
-                  <td className="px-5 py-4 whitespace-nowrap">
-                    {contract.status === "PENDIENTE_PAGO" && (
-                      <Button
-                        size="sm"
-                        onClick={() => handlePayment(contract.id)}
-                        disabled={payingContractId === contract.id}
-                        className="bg-gradient-to-r from-blue-600 to-green-500 text-white font-semibold shadow flex items-center gap-1.5"
-                      >
-                        {payingContractId === contract.id 
-                          ? <><Loader className="w-4 h-4 animate-spin"/> Procesando...</>
-                          : <><CreditCard className="w-4 h-4" /> Pagar Renta</>
-                        }
-                      </Button>
-                    )}
-                    <Button size="sm" variant="outline" className="ml-2 flex items-center gap-1.5"><ExternalLink className="w-4 h-4"/> Ver Detalles</Button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="text-center py-16 text-neutral-500">
-                  <FileText className="w-12 h-12 mx-auto mb-2 text-neutral-300"/>
-                  <p className="font-semibold">No tienes contratos aún.</p>
-                  <p className="text-sm">Cuando alquiles una propiedad, tu contrato aparecerá aquí.</p>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold flex items-center gap-3"><FileText className="w-8 h-8 text-blue-600" /> Mis Contratos</h2>
       </div>
+      
+      {contracts.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {contracts.map((contract) => (
+            <Card key={contract.id} className="flex flex-col justify-between shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <Home className="w-6 h-6 text-blue-500" />
+                  {contract.propertyTitle}
+                </CardTitle>
+                <div className="pt-2">
+                  <ContractStatusBadge status={contract.status} />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm">
+                <div className="flex items-center gap-3 text-lg">
+                  <DollarSign className="w-5 h-5 text-green-600"/>
+                  <span className="font-bold text-green-700">${new Intl.NumberFormat('es-CO').format(contract.monthlyAmount)}</span>
+                  <span className="text-neutral-500">/ mes</span>
+                </div>
+                <div className="flex items-center gap-3 text-neutral-600">
+                  <Calendar className="w-5 h-5 text-gray-500"/>
+                  <span>{format(new Date(contract.startDate), "dd MMM, yyyy")} - {format(new Date(contract.endDate), "dd MMM, yyyy")}</span>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-end gap-2 bg-gray-50 p-4">
+                {contract.status === "PENDIENTE_PAGO" && (
+                  <Button
+                    onClick={() => handlePayment(contract.id)}
+                    disabled={payingContractId === contract.id}
+                    className="bg-gradient-to-r from-blue-600 to-green-500 text-white font-semibold shadow-md flex items-center gap-2"
+                  >
+                    {payingContractId === contract.id 
+                      ? <><Loader className="w-4 h-4 animate-spin"/> Procesando...</>
+                      : <><CreditCard className="w-5 h-5" /> Pagar Primer Mes</>
+                    }
+                  </Button>
+                )}
+                 <Button asChild size="sm" variant="outline" className="flex items-center gap-1.5">
+                    <Link href={`/panel-inquilino/contratos/${contract.id}`}>
+                      <ExternalLink className="w-4 h-4"/> Ver Detalles
+                    </Link>
+                 </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-24 text-gray-500 bg-white rounded-xl shadow-sm border border-neutral-100">
+            <FileText className="w-16 h-16 mx-auto mb-4 text-neutral-300"/>
+            <h3 className="text-xl font-semibold text-neutral-700">No tienes contratos aún.</h3>
+            <p className="mt-2 text-md">Cuando alquiles una propiedad y completes el pago, tu contrato activo aparecerá aquí.</p>
+        </div>
+      )}
     </div>
   );
 }

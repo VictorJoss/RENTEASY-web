@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { getOwnerApplications, updateApplicationStatus } from '@/lib/api-client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ export default function ListaSolicitudes() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [updatingId, setUpdatingId] = useState<number | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         fetchApplications();
@@ -41,11 +43,19 @@ export default function ListaSolicitudes() {
     const handleUpdateStatus = async (id: number, status: 'APROBADA' | 'RECHAZADA') => {
         setUpdatingId(id);
         try {
-            const updatedApplication = await updateApplicationStatus(id, status);
-            setApplications(apps => apps.map(app => app.id === id ? updatedApplication : app));
+            const response = await updateApplicationStatus(id, status);
+            
+            if (status === 'APROBADA' && response && response.id) {
+                // Redirigir a la página de configuración del contrato
+                router.push(`/panel-propietario/contratos/configurar/${response.id}`);
+            } else {
+                // Si se rechaza, simplemente recargamos la lista
+                await fetchApplications();
+            }
+
         } catch (err) {
-            // TODO: Add better error handling, like a toast notification
             console.error(`Error updating application ${id} to ${status}`, err);
+            setError(`Error al actualizar la solicitud. Inténtelo de nuevo.`);
         } finally {
             setUpdatingId(null);
         }

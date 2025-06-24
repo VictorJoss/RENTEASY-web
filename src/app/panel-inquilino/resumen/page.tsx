@@ -1,10 +1,9 @@
-import InquilinoDashboardFrame from "@/frames/InquilinoDashboardFrame";
 import ResumenInquilino from "@/components/inquilino/ResumenInquilino";
 
-export default function ResumenInquilinoPage() {
+export default function ResumenPage() {
   return (
-    <InquilinoDashboardFrame>
+    <div className="container mx-auto px-4 py-6">
       <ResumenInquilino />
-    </InquilinoDashboardFrame>
+    </div>
   );
 } 

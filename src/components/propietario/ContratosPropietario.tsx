@@ -5,15 +5,16 @@ import { useRouter } from "next/navigation";
 import { getOwnerContracts } from "@/lib/api-client";
 import { FileText, User, Home, CheckCircle, AlertTriangle, Calendar, X, PenLine, Eye, ChevronLeft, ChevronRight, FileSignature, Search } from "lucide-react";
 import { format } from 'date-fns';
+import Link from 'next/link';
 
 interface Contract {
   id: number;
   tenantName: string;
-  propertyName: string;
+  propertyTitle: string;
   status: string;
   startDate: string;
   endDate: string;
-  rentAmount: number;
+  monthlyAmount: number;
 }
 
 export default function ContratosPropietario() {
@@ -46,7 +47,7 @@ export default function ContratosPropietario() {
   };
 
   const estados = Array.from(new Set(contratos.map(c => c.status)));
-  const propiedades = Array.from(new Set(contratos.map(c => c.propertyName)));
+  const propiedades = Array.from(new Set(contratos.map(c => c.propertyTitle)));
   const PAGE_SIZE = 4;
   const [pagina, setPagina] = useState(1);
   const [filtroEstado, setFiltroEstado] = useState("");
@@ -55,9 +56,9 @@ export default function ContratosPropietario() {
 
   const contratosFiltrados = contratos.filter(c =>
     (filtroEstado ? c.status === filtroEstado : true) &&
-    (filtroPropiedad ? c.propertyName === filtroPropiedad : true) &&
+    (filtroPropiedad ? c.propertyTitle === filtroPropiedad : true) &&
     (busqueda ? (
-      c.propertyName.toLowerCase().includes(busqueda.toLowerCase()) ||
+      c.propertyTitle.toLowerCase().includes(busqueda.toLowerCase()) ||
       c.tenantName.toLowerCase().includes(busqueda.toLowerCase())
     ) : true)
   );
@@ -96,7 +97,6 @@ export default function ContratosPropietario() {
     <div className="max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
         <h2 className="text-xl font-bold flex items-center gap-2"><FileText className="w-6 h-6 text-blue-600" /> Contratos</h2>
-        <Button onClick={() => router.push("/panel-propietario/contratos/nuevo")} className="flex items-center gap-2"><PenLine className="w-4 h-4" />Crear contrato</Button>
       </div>
       {/* Filtros y resumen */}
       <div className="mb-4 w-full overflow-x-auto">
@@ -168,7 +168,7 @@ export default function ContratosPropietario() {
             {contratosPagina.map((contrato) => (
               <tr key={contrato.id} className="even:bg-blue-50/40">
                 <td className="px-4 py-3 border-b align-middle"><span className="flex items-center gap-2"><User className="w-4 h-4 text-blue-400 shrink-0" /> {contrato.tenantName}</span></td>
-                <td className="px-4 py-3 border-b align-middle"><span className="flex items-center gap-2"><Home className="w-4 h-4 text-green-400 shrink-0" /> {contrato.propertyName}</span></td>
+                <td className="px-4 py-3 border-b align-middle"><span className="flex items-center gap-2"><Home className="w-4 h-4 text-green-400 shrink-0" /> {contrato.propertyTitle}</span></td>
                 <td className="px-4 py-3 border-b align-middle">
                   <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${contrato.status === "PENDIENTE" ? "bg-yellow-100 text-yellow-700" : contrato.status === "ACTIVO" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
                     {contrato.status === "PENDIENTE" ? <AlertTriangle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />} {contrato.status}
@@ -176,7 +176,11 @@ export default function ContratosPropietario() {
                 </td>
                 <td className="px-4 py-3 border-b align-middle"><span className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400 shrink-0" /> {format(new Date(contrato.startDate), 'dd/MM/yyyy')}</span></td>
                 <td className="px-4 py-3 border-b align-middle flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => setModalContrato(contrato)}><Eye className="w-4 h-4 mr-1" />Ver</Button>
+                  <Button asChild size="sm" variant="outline">
+                    <Link href={`/panel-propietario/contratos/${contrato.id}`}>
+                      <Eye className="w-4 h-4 mr-1" />Ver
+                    </Link>
+                  </Button>
                   {contrato.status === "PENDIENTE_FIRMA_PROPIETARIO" && (
                     <Button size="sm" className="bg-gradient-to-r from-blue-600 to-green-600 text-white font-semibold shadow flex items-center gap-1" onClick={() => handleFirmar(contrato.id)}><FileSignature className="w-4 h-4" />Firmar</Button>
                   )}
@@ -197,14 +201,14 @@ export default function ContratosPropietario() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-2xl w-full border border-blue-100 relative animate-in fade-in duration-200">
             <button className="absolute top-3 right-3 text-neutral-400 hover:text-blue-600 text-xl" onClick={() => setModalContrato(null)} aria-label="Cerrar"><X /></button>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-700"><FileText className="w-5 h-5" /> Contrato de {modalContrato.propertyName}</h3>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-700"><FileText className="w-5 h-5" /> Contrato de {modalContrato.propertyTitle}</h3>
             <div className="space-y-2 mb-4">
               <div className="flex items-center gap-2"><User className="w-4 h-4 text-blue-400" /><b>Inquilino:</b> <span className="text-neutral-700">{modalContrato.tenantName}</span></div>
-              <div className="flex items-center gap-2"><Home className="w-4 h-4 text-green-400" /><b>Propiedad:</b> <span className="text-neutral-700">{modalContrato.propertyName}</span></div>
+              <div className="flex items-center gap-2"><Home className="w-4 h-4 text-green-400" /><b>Propiedad:</b> <span className="text-neutral-700">{modalContrato.propertyTitle}</span></div>
               <div className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-600" /><b>Estado:</b> <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${modalContrato.status === "PENDIENTE" ? "bg-yellow-100 text-yellow-700" : modalContrato.status === "ACTIVO" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>{modalContrato.status}</span></div>
               <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" /><b>Fecha Inicio:</b> <span className="text-neutral-700">{format(new Date(modalContrato.startDate), 'dd/MM/yyyy')}</span></div>
               <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-red-400" /><b>Fecha Fin:</b> <span className="text-neutral-700">{format(new Date(modalContrato.endDate), 'dd/MM/yyyy')}</span></div>
-              <div className="flex items-center gap-2"><span className="font-bold text-lg text-green-600">${new Intl.NumberFormat('es-CO').format(modalContrato.rentAmount)}</span></div>
+              <div className="flex items-center gap-2"><span className="font-bold text-lg text-green-600">${new Intl.NumberFormat('es-CO').format(modalContrato.monthlyAmount)}</span></div>
             </div>
             {/* Visor PDF simulado */}
             <div className="mb-4">
