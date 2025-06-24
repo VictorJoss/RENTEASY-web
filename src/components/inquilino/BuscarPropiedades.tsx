@@ -19,7 +19,7 @@ import {
   Ruler,
   CalendarCheck2
 } from "lucide-react";
-import { searchProperties, createRentalApplication, getUser } from "@/lib/api-client";
+import { searchPropertiesForTenant, createRentalApplication, getUser } from "@/lib/api-client";
 
 const PAGE_SIZE = 6;
 
@@ -70,7 +70,7 @@ export default function BuscarPropiedades() {
       if (filtros.bedrooms) filters.bedrooms = parseInt(filtros.bedrooms);
       if (filtros.search) filters.search = filtros.search;
 
-      const response = await searchProperties(filters);
+      const response = await searchPropertiesForTenant(filters);
       setProperties(response.data);
       setPagina(1);
     } catch (err: any) {

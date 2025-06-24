@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081';
 
+// Cliente API con autenticación para usuarios logueados
 const apiClient = axios.create({
   baseURL: API_URL,
   withCredentials: true, // Importante para enviar cookies
@@ -23,6 +24,31 @@ apiClient.interceptors.request.use((config) => {
   return config;
 }, (error) => {
   return Promise.reject(error);
+});
+
+// Interceptor para manejar errores 401 y redirigir al login
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
+      // Limpiar datos de usuario
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('user');
+        // Redirigir a login, manteniendo la URL original para volver después
+        const currentPath = window.location.pathname;
+        window.location.href = `/login?redirect=${currentPath}`;
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Cliente API público sin autenticación
+const publicApiClient = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 export async function register(data: { name: string; email: string; password: string; document: string; role: string }) {
@@ -124,11 +150,30 @@ export const uploadFiles = (files: FileList) => {
   return Promise.all(uploadPromises);
 };
 
-export const getFeaturedProperties = () => apiClient.get('/api/properties/random');
+export const getFeaturedProperties = () => publicApiClient.get('/api/properties/random');
 
-export const getPublicPropertyById = (id: string) => apiClient.get(`/api/properties/public/${id}`);
+export const getPublicPropertyById = (id: string) => publicApiClient.get(`/api/properties/public/${id}`);
 
 export const searchProperties = (filters: {
+  city?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  bedrooms?: number;
+  search?: string;
+}) => {
+  const params = new URLSearchParams();
+  
+  if (filters.city) params.append('city', filters.city);
+  if (filters.minPrice) params.append('minPrice', filters.minPrice.toString());
+  if (filters.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
+  if (filters.bedrooms) params.append('bedrooms', filters.bedrooms.toString());
+  if (filters.search) params.append('search', filters.search);
+  
+  return publicApiClient.get(`/api/properties/search?${params.toString()}`);
+};
+
+// Función específica para inquilinos logueados
+export const searchPropertiesForTenant = (filters: {
   city?: string;
   minPrice?: number;
   maxPrice?: number;

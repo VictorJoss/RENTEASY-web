@@ -82,7 +82,7 @@ export default function PublicPropertySearch() {
 
   const handleRequestRental = async (propertyId: number) => {
     if (!user) {
-      router.push(`/login?redirect=/`);
+      router.push(`/login?redirect=/propiedad/${propertyId}`);
       return;
     }
     

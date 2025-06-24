@@ -4,13 +4,15 @@ import { login } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginForm() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect');
 
   const handleChange = (e: { target: { name: any; value: any; }; }) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -20,6 +22,14 @@ export default function LoginForm() {
     setError("");
     try {
       const { role } = await login(form);
+      
+      // Si hay un parámetro redirect, redirigir ahí
+      if (redirectTo) {
+        router.push(redirectTo);
+        return;
+      }
+      
+      // Redirección por defecto según el rol
       if (role === "propietario") router.push("/panel-propietario");
       else if (role === "inquilino") router.push("/panel-inquilino");
       else if (role === "admin") router.push("/admin");
@@ -33,6 +43,11 @@ export default function LoginForm() {
   return (
     <Card className="max-w-md mx-auto mt-2 p-6">
       <h2 className="text-2xl font-bold mb-4 text-center">Iniciar sesión</h2>
+      {redirectTo && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
+          <p>Inicia sesión para continuar con tu solicitud.</p>
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input name="email" type="email" placeholder="Correo electrónico" value={form.email} onChange={handleChange} required />
         <Input name="password" type="password" placeholder="Contraseña" value={form.password} onChange={handleChange} required />
