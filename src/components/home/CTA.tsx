@@ -1,8 +1,20 @@
 "use client";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { getUser } from "@/lib/api-client";
 
 export default function CTA() {
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    setUser(getUser());
+  }, []);
+
+  if (user) {
+    return null; // No renderizar nada si el usuario está logueado
+  }
+
   return (
     <section className="py-20 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-green-600/10 backdrop-blur-3xl" />

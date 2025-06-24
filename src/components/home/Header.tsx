@@ -4,9 +4,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { getUser, logout } from "@/lib/api-client";
+import { useRouter } from "next/navigation";
+import { LayoutDashboard, LogOut, LogIn, UserPlus } from "lucide-react";
 
 export default function Header({ fixed = true }: { fixed?: boolean }) {
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const router = useRouter();
 
   // Bloquea el scroll del body cuando el menú móvil está abierto
   useEffect(() => {
@@ -16,6 +21,23 @@ export default function Header({ fixed = true }: { fixed?: boolean }) {
       document.body.style.overflow = "";
     }
   }, [open]);
+
+  useEffect(() => {
+    setUser(getUser());
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+  };
+
+  const getDashboardUrl = () => {
+    if (!user || !user.roles) return "/";
+    const role = user.roles[0]?.replace('ROLE_', '').toLowerCase();
+    if (role === 'propietario') return '/panel-propietario';
+    if (role === 'inquilino') return '/panel-inquilino';
+    if (role === 'admin') return '/panel-admin';
+    return '/';
+  };
 
   return (
     <motion.header
@@ -46,12 +68,35 @@ export default function Header({ fixed = true }: { fixed?: boolean }) {
 
           {/* Acciones usuario */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" asChild>
-              <Link href="/login">Iniciar sesión</Link>
-            </Button>
-            <Button className="bg-gradient-to-r from-blue-600 to-green-600 text-white" asChild>
-              <Link href="/registro">Registrarse</Link>
-            </Button>
+            {user ? (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link href={getDashboardUrl()} className="flex items-center gap-2">
+                    <LayoutDashboard className="w-4 h-4" />
+                    Dashboard
+                  </Link>
+                </Button>
+                <Button variant="destructive" size="sm" onClick={handleLogout} className="flex items-center gap-2">
+                  <LogOut className="w-4 h-4" />
+                  Cerrar sesión
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link href="/login" className="flex items-center gap-2">
+                    <LogIn className="w-4 h-4" />
+                    Iniciar sesión
+                  </Link>
+                </Button>
+                <Button className="bg-gradient-to-r from-blue-600 to-green-600 text-white flex items-center gap-2" asChild>
+                  <Link href="/registro">
+                    <UserPlus className="w-4 h-4" />
+                    Registrarse
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Botón menú móvil */}
@@ -92,12 +137,25 @@ export default function Header({ fixed = true }: { fixed?: boolean }) {
             <Link href="/buscar" onClick={() => setOpen(false)} className="text-lg font-semibold text-neutral-800 hover:text-blue-600">Buscar propiedades</Link>
 
             <div className="flex flex-col gap-3 mt-8 border-t border-blue-100 pt-6">
-              <Button variant="outline" asChild className="w-full">
-                <Link href="/login" onClick={() => setOpen(false)}>Iniciar sesión</Link>
-              </Button>
-              <Button className="bg-gradient-to-r from-blue-600 to-green-600 text-white w-full" asChild>
-                <Link href="/registro" onClick={() => setOpen(false)}>Registrarse</Link>
-              </Button>
+              {user ? (
+                <>
+                  <Button variant="outline" asChild className="w-full">
+                    <Link href={getDashboardUrl()} onClick={() => setOpen(false)}>Dashboard</Link>
+                  </Button>
+                  <Button variant="destructive" size="sm" onClick={handleLogout} className="w-full">
+                    Cerrar sesión
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" asChild className="w-full">
+                    <Link href="/login" onClick={() => setOpen(false)}>Iniciar sesión</Link>
+                  </Button>
+                  <Button className="bg-gradient-to-r from-blue-600 to-green-600 text-white w-full" asChild>
+                    <Link href="/registro" onClick={() => setOpen(false)}>Registrarse</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </nav>
         </div>

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import PublicLayoutFrame from "@/frames/PublicLayoutFrame";
 
 interface Property {
   id: number;
@@ -130,63 +131,65 @@ export default function PropertyPage() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="container mx-auto px-4 py-8 md:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          {/* Image Gallery */}
-          <div className="relative w-full h-[450px] rounded-lg overflow-hidden shadow-lg">
-            <Image
-              src={property.images[0] || 'https://via.placeholder.com/800x600?text=Propiedad'}
-              alt={property.title}
-              fill
-              className="object-cover"
-              priority
-            />
-             <div className="absolute top-4 right-4">
-               <Badge variant={property.status === 'DISPONIBLE' ? 'default' : 'destructive'} className="text-sm">
-                 {property.status}
-               </Badge>
-             </div>
-          </div>
-
-          {/* Property Details */}
-          <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">{property.title}</h1>
-            <div className="flex items-center text-gray-500 mb-6">
-              <MapPin className="w-4 h-4 mr-2" />
-              <span>{property.address}, {property.city}</span>
-            </div>
-            
-            <p className="text-4xl font-extrabold text-green-600 mb-6">
-              ${new Intl.NumberFormat("es-CO").format(property.price)}
-              <span className="text-lg font-medium text-gray-500">/mes</span>
-            </p>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-6 text-center">
-              <div className="flex flex-col items-center justify-center p-3 bg-gray-100 rounded-lg">
-                <BedDouble className="w-8 h-8 text-green-600 mb-2"/>
-                <span className="font-bold">{property.bedrooms}</span>
-                <span className="text-sm text-gray-500">Habitaciones</span>
-              </div>
-              <div className="flex flex-col items-center justify-center p-3 bg-gray-100 rounded-lg">
-                <Bath className="w-8 h-8 text-green-600 mb-2"/>
-                <span className="font-bold">{property.bathrooms}</span>
-                <span className="text-sm text-gray-500">Baños</span>
-              </div>
-              <div className="flex flex-col items-center justify-center p-3 bg-gray-100 rounded-lg">
-                <Ruler className="w-8 h-8 text-green-600 mb-2"/>
-                <span className="font-bold">{property.area} m²</span>
-                <span className="text-sm text-gray-500">Área</span>
-              </div>
+    <PublicLayoutFrame>
+      <div className="bg-gray-50 min-h-screen">
+        <div className="container mx-auto px-4 py-8 md:py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            {/* Image Gallery */}
+            <div className="relative w-full h-[450px] rounded-lg overflow-hidden shadow-lg">
+              <Image
+                src={property.images[0] || 'https://via.placeholder.com/800x600?text=Propiedad'}
+                alt={property.title}
+                fill
+                className="object-cover"
+                priority
+              />
+               <div className="absolute top-4 right-4">
+                 <Badge variant={property.status === 'DISPONIBLE' ? 'default' : 'destructive'} className="text-sm">
+                   {property.status}
+                 </Badge>
+               </div>
             </div>
 
-            <h2 className="text-xl font-semibold text-gray-800 mt-8 mb-4">Descripción</h2>
-            <p className="text-gray-600 leading-relaxed mb-8">{property.description}</p>
-            
-            {renderRequestButton()}
+            {/* Property Details */}
+            <div className="bg-white p-8 rounded-lg shadow-lg">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">{property.title}</h1>
+              <div className="flex items-center text-gray-500 mb-6">
+                <MapPin className="w-4 h-4 mr-2" />
+                <span>{property.address}, {property.city}</span>
+              </div>
+              
+              <p className="text-4xl font-extrabold text-green-600 mb-6">
+                ${new Intl.NumberFormat("es-CO").format(property.price)}
+                <span className="text-lg font-medium text-gray-500">/mes</span>
+              </p>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-6 text-center">
+                <div className="flex flex-col items-center justify-center p-3 bg-gray-100 rounded-lg">
+                  <BedDouble className="w-8 h-8 text-green-600 mb-2"/>
+                  <span className="font-bold">{property.bedrooms}</span>
+                  <span className="text-sm text-gray-500">Habitaciones</span>
+                </div>
+                <div className="flex flex-col items-center justify-center p-3 bg-gray-100 rounded-lg">
+                  <Bath className="w-8 h-8 text-green-600 mb-2"/>
+                  <span className="font-bold">{property.bathrooms}</span>
+                  <span className="text-sm text-gray-500">Baños</span>
+                </div>
+                <div className="flex flex-col items-center justify-center p-3 bg-gray-100 rounded-lg">
+                  <Ruler className="w-8 h-8 text-green-600 mb-2"/>
+                  <span className="font-bold">{property.area} m²</span>
+                  <span className="text-sm text-gray-500">Área</span>
+                </div>
+              </div>
+
+              <h2 className="text-xl font-semibold text-gray-800 mt-8 mb-4">Descripción</h2>
+              <p className="text-gray-600 leading-relaxed mb-8">{property.description}</p>
+              
+              {renderRequestButton()}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </PublicLayoutFrame>
   );
 } 

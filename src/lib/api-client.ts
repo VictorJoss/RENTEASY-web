@@ -103,14 +103,11 @@ export function getUser(): any | null {
   return user ? JSON.parse(user) : null;
 }
 
-export async function logout(): Promise<void> {
-  try {
-    await apiClient.post('/api/auth/signout');
-  } catch (error) {
-    console.error("Error al cerrar sesión en el servidor:", error);
-  } finally {
+export function logout() {
+  if (typeof window !== 'undefined') {
     localStorage.removeItem('user');
-    window.location.href = '/login';
+    // Forzar un refresh para que los componentes que dependen del estado de login se actualicen.
+    window.location.href = '/'; 
   }
 }
 
