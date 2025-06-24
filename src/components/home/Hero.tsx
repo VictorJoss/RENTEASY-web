@@ -1,9 +1,18 @@
 "use client";
-import { ArrowRight, Link } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { getUser } from "@/lib/api-client";
+import Link from "next/link";
 
 export default function Hero() {
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    setUser(getUser());
+  }, []);
+
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center">
       {/* Fondo con blur */}
@@ -28,18 +37,20 @@ export default function Hero() {
             </p>
 
             {/* Botones */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
-                size="lg"
-                className="bg-gradient-to-r from-blue-600 to-green-600 text-white hover:from-blue-700 hover:to-green-700"
-                asChild
-                >
-                <a href="/registro">
-                  Comenzar ahora
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </a>
-                </Button>
-            </div>
+            {!user && (
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-blue-600 to-green-600 text-white hover:from-blue-700 hover:to-green-700"
+                  asChild
+                  >
+                  <Link href="/registro">
+                    Comenzar ahora
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                  </Button>
+              </div>
+            )}
           </motion.div>
         </div>
       </div>

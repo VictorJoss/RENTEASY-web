@@ -126,8 +126,8 @@ export default function PagosInquilino() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       ID Transacción
                     </th>
-                  </tr>
-                </thead>
+            </tr>
+          </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {payments.map((payment) => (
                     <tr key={payment.id} className="hover:bg-gray-50">
@@ -154,21 +154,21 @@ export default function PagosInquilino() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {payment.transactionId || '-'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
           ) : (
             <div className="text-center py-12 text-gray-500">
               <CreditCard className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold mb-2">No hay pagos registrados</h3>
               <p>Aún no tienes pagos en tu historial.</p>
-            </div>
-          )}
+        </div>
+      )}
         </CardContent>
       </Card>
     </div>
   );
-} 
+}
