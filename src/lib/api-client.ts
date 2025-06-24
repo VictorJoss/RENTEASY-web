@@ -258,3 +258,9 @@ export const getPaymentHistory = async () => {
   const response = await apiClient.get('/api/contracts/tenant/payment-history');
   return response.data;
 };
+
+// Función para obtener historial de pagos recibidos del propietario
+export const getOwnerPaymentHistory = async () => {
+  const response = await apiClient.get('/api/contracts/owner/payment-history');
+  return response.data;
+};
